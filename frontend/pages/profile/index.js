@@ -9,12 +9,16 @@
 
 import { HistoryOutlined, UserOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../components/layout';
 import BookingHistory from '../../components/profile/BookingHistory';
-import MyProfile from '../../components/profile/MyProfile';
 import PrivateRoute from '../../components/routes/PrivateRoute';
+
+const MyProfile = dynamic(() => import('../../components/profile/MyProfile'), {
+  ssr: false
+});
 
 function Profile() {
   const [activeTab, setActiveTab] = useState(1);

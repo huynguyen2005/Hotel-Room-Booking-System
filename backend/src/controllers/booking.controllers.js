@@ -11,7 +11,85 @@ const Room = require('../models/room.model');
 const Booking = require('../models/booking.model');
 const { errorResponse, successResponse } = require('../configs/app.response');
 const MyQueryHelper = require('../configs/api.feature');
-const { bookingDatesBeforeCurrentDate } = require('../lib/booking.dates.validator');
+const logger = require('../middleware/winston.logger');
+const { sendMail, buildEmailHtml } = require('../configs/send.mail');
+const {
+  bookingDatesBeforeCurrentDate,
+  hasOverlappingBookingDates
+} = require('../lib/booking.dates.validator');
+
+const findApprovedBookingConflicts = async (roomId, bookingDates, excludedBookingId = null) => {
+  const approvedBookings = await Booking.find({
+    room_id: roomId,
+    booking_status: 'approved',
+    ...(excludedBookingId ? { _id: { $ne: excludedBookingId } } : {})
+  });
+
+  return approvedBookings.filter((approvedBooking) => (
+    hasOverlappingBookingDates(approvedBooking.booking_dates, bookingDates)
+  ));
+};
+
+const formatBookingDatesForEmail = (bookingDates = []) => bookingDates
+  .map((bookingDate) => {
+    const date = new Date(bookingDate);
+    return date.toISOString().split('T')[0];
+  })
+  .join(', ');
+
+const sendBookingStatusMail = async (booking, status) => {
+  if (!booking?.booking_by?.verified || !booking?.booking_by?.email) {
+    return;
+  }
+
+  const roomName = booking?.room_id?.room_name || 'your room';
+  const bookingDates = formatBookingDatesForEmail(booking.booking_dates);
+  const bookingPageUrl = `${process.env.APP_SERVICE_URL}/profile?tab=booking-history`;
+  const statusMailMap = {
+    approved: {
+      subject: 'Room Booking Approved',
+      title: 'Room Booking Approved',
+      message: `Your booking for ${roomName} has been approved. Booked dates: ${bookingDates}.`,
+      ctaLabel: 'View Booking'
+    },
+    rejected: {
+      subject: 'Room Booking Rejected',
+      title: 'Room Booking Rejected',
+      message: `Your booking for ${roomName} has been rejected. Requested dates: ${bookingDates}.`,
+      ctaLabel: 'View Booking'
+    },
+    'in-reviews': {
+      subject: 'Room Booking Ready For Review',
+      title: 'Room Booking Ready For Review',
+      message: `Your stay for ${roomName} has ended. You can now review your booking for dates: ${bookingDates}.`,
+      ctaLabel: 'Write Review'
+    },
+    completed: {
+      subject: 'Room Booking Completed',
+      title: 'Room Booking Completed',
+      message: `Your booking for ${roomName} has been marked as completed. Stay dates: ${bookingDates}.`,
+      ctaLabel: 'View Booking'
+    }
+  };
+
+  const selectedMailConfig = statusMailMap[status];
+
+  if (!selectedMailConfig) {
+    return;
+  }
+
+  await sendMail({
+    to: booking.booking_by.email,
+    subject: selectedMailConfig.subject,
+    text: `${selectedMailConfig.message} View your booking history: ${bookingPageUrl}`,
+    html: buildEmailHtml({
+      title: selectedMailConfig.title,
+      message: selectedMailConfig.message,
+      url: bookingPageUrl,
+      ctaLabel: selectedMailConfig.ctaLabel
+    })
+  });
+};
 
 // TODO: controller for placed booking order
 exports.placedBookingOrder = async (req, res) => {
@@ -47,21 +125,25 @@ exports.placedBookingOrder = async (req, res) => {
       ));
     }
 
-    // check room status is `booked`
-    if (myRoom.room_status === 'booked') {
-      return res.status(400).json(errorResponse(
-        1,
-        'FAILED',
-        'Sorry! Current your sleeted already booked. Please try again later'
-      ));
-    }
-
     // prepared user provided data to store database
     const data = {
       room_id: req.params.id,
       booking_dates: req.body.booking_dates,
       booking_by: req.user.id
     };
+
+    const conflictingBookings = await findApprovedBookingConflicts(
+      req.params.id,
+      data.booking_dates
+    );
+
+    if (conflictingBookings.length > 0) {
+      return res.status(409).json(errorResponse(
+        9,
+        'ALREADY EXIST',
+        'Sorry! Your selected booking dates are not available for this room'
+      ));
+    }
 
     // save room data in database
     const booking = await Booking.create(data);
@@ -439,13 +521,35 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
       case 'approved':
         if (booking.booking_status === 'pending') {
           if (!bookingDatesBeforeCurrentDate(booking?.booking_dates).isAnyDateInPast) {
+            const conflictingBookings = await findApprovedBookingConflicts(
+              booking.room_id,
+              booking.booking_dates,
+              booking._id
+            );
+
+            if (conflictingBookings.length > 0) {
+              return res.status(409).json(errorResponse(
+                9,
+                'ALREADY EXIST',
+                'This booking cannot be `approved` because the selected dates are already booked'
+              ));
+            }
+
             // update the booking status to `approved`
             booking.booking_status = 'approved';
             await booking.save({ validateBeforeSave: false });
 
-            // update the room status to 'booked'
-            myRoom.room_status = 'booked';
-            await myRoom.save({ validateBeforeSave: false });
+            const approvedBooking = await Booking.findById(booking._id)
+              .populate('booking_by')
+              .populate('room_id');
+
+            if (approvedBooking?.booking_by?.verified) {
+              try {
+                await sendBookingStatusMail(approvedBooking, 'approved');
+              } catch (mailError) {
+                logger.error(mailError);
+              }
+            }
           } else {
             return res.status(400).json(errorResponse(
               1,
@@ -466,6 +570,18 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
           // update the booking status to `rejected`
           booking.booking_status = 'rejected';
           await booking.save({ validateBeforeSave: false });
+
+          const rejectedBooking = await Booking.findById(booking._id)
+            .populate('booking_by')
+            .populate('room_id');
+
+          if (rejectedBooking?.booking_by?.verified) {
+            try {
+              await sendBookingStatusMail(rejectedBooking, 'rejected');
+            } catch (mailError) {
+              logger.error(mailError);
+            }
+          }
         } else {
           return res.status(400).json(errorResponse(
             1,
@@ -481,14 +597,22 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
             booking.booking_status = 'in-reviews';
             await booking.save({ validateBeforeSave: false });
 
-            // update the room status to 'available'
-            myRoom.room_status = 'available';
-            await myRoom.save({ validateBeforeSave: false });
+            const reviewBooking = await Booking.findById(booking._id)
+              .populate('booking_by')
+              .populate('room_id');
+
+            if (reviewBooking?.booking_by?.verified) {
+              try {
+                await sendBookingStatusMail(reviewBooking, 'in-reviews');
+              } catch (mailError) {
+                logger.error(mailError);
+              }
+            }
           } else {
             return res.status(400).json(errorResponse(
               1,
               'FAILED',
-              'Sorry! This booking cannot be `in-reviews` because of booking data is not feature'
+              'Sorry! This booking cannot be `in-reviews` because the stay dates have not passed yet'
             ));
           }
         } else {
@@ -496,6 +620,30 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
             1,
             'FAILED',
             'This booking cannot be `in-reviews` as it is no longer in the `approved` status'
+          ));
+        }
+        break;
+      case 'completed':
+        if (booking.booking_status === 'in-reviews') {
+          booking.booking_status = 'completed';
+          await booking.save({ validateBeforeSave: false });
+
+          const completedBooking = await Booking.findById(booking._id)
+            .populate('booking_by')
+            .populate('room_id');
+
+          if (completedBooking?.booking_by?.verified) {
+            try {
+              await sendBookingStatusMail(completedBooking, 'completed');
+            } catch (mailError) {
+              logger.error(mailError);
+            }
+          }
+        } else {
+          return res.status(400).json(errorResponse(
+            1,
+            'FAILED',
+            'This booking cannot be `completed` as it is no longer in the `in-reviews` status'
           ));
         }
         break;

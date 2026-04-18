@@ -22,14 +22,21 @@ import notificationWithIcon from '../../utils/notification';
 
 const { confirm } = Modal;
 
-function OrderPlaceModal({ bookingModal, setBookingModal }) {
+function OrderPlaceModal({ bookingModal, setBookingModal, unavailableDates }) {
   const [selectedDates, setSelectedDates] = useState([]);
   const router = useRouter();
+  const unavailableDateSet = new Set(unavailableDates);
 
   // handle date change on date picker
   const handleDateChange = (dates) => {
-    const formattedDates = dates.map((date) => dayjs(date).format('YYYY-MM-DD'));
-    setSelectedDates(formattedDates);
+    const formattedDates = dates.map((date) => dayjs(date.toDate ? date.toDate() : date).format('YYYY-MM-DD'));
+    const filteredDates = formattedDates.filter((date) => !unavailableDateSet.has(date));
+
+    if (filteredDates.length !== formattedDates.length) {
+      notificationWithIcon('error', 'ERROR', 'One or more selected dates are already booked for this room.');
+    }
+
+    setSelectedDates(filteredDates);
   };
 
   // function to handle placed room booking order
@@ -61,7 +68,16 @@ function OrderPlaceModal({ bookingModal, setBookingModal }) {
                 }
               })
               .catch((err) => {
-                notificationWithIcon('error', 'ERROR', (err?.response?.data?.result?.error?.message || err?.message || 'Sorry! Something went wrong. App server error'));
+                notificationWithIcon(
+                  'error',
+                  'ERROR',
+                  (
+                    err?.response?.data?.result?.error?.message
+                    || err?.response?.data?.result?.error
+                    || err?.message
+                    || 'Sorry! Something went wrong. App server error'
+                  )
+                );
                 reject();
               });
           }).catch((err) => message.error(err?.message || 'Oops errors!'));
@@ -133,6 +149,19 @@ function OrderPlaceModal({ bookingModal, setBookingModal }) {
           format='YYYY/MM/DD'
           highlightToday
           multiple
+          mapDays={({ date }) => {
+            const formattedDate = dayjs(date.toDate()).format('YYYY-MM-DD');
+
+            if (unavailableDateSet.has(formattedDate)) {
+              return {
+                disabled: true,
+                style: { color: '#bfbfbf', textDecoration: 'line-through' },
+                title: 'Already booked'
+              };
+            }
+
+            return {};
+          }}
         />
       </div>
     </Modal>
@@ -140,11 +169,13 @@ function OrderPlaceModal({ bookingModal, setBookingModal }) {
 }
 
 OrderPlaceModal.defaultProps = {
-  bookingModal: { open: false, roomId: null }
+  bookingModal: { open: false, roomId: null },
+  unavailableDates: []
 };
 
 OrderPlaceModal.propTypes = {
-  bookingModal: PropTypes.object
+  bookingModal: PropTypes.object,
+  unavailableDates: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default OrderPlaceModal;

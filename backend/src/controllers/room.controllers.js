@@ -10,9 +10,11 @@
 const fs = require('fs');
 const appRoot = require('app-root-path');
 const Room = require('../models/room.model');
+const Booking = require('../models/booking.model');
 const logger = require('../middleware/winston.logger');
 const { errorResponse, successResponse } = require('../configs/app.response');
 const MyQueryHelper = require('../configs/api.feature');
+const { getUpcomingBookingDates } = require('../lib/booking.dates.validator');
 
 // TODO: Controller for create new room
 exports.createRoom = async (req, res) => {
@@ -291,6 +293,15 @@ exports.getRoomByIdOrSlugName = async (req, res) => {
       ));
     }
 
+    const approvedBookings = await Booking.find({
+      room_id: room._id,
+      booking_status: 'approved'
+    });
+
+    const unavailableDates = [...new Set(
+      approvedBookings.flatMap((booking) => getUpcomingBookingDates(booking.booking_dates))
+    )].sort();
+
     const organizedRoom = {
       id: room?._id,
       room_name: room?.room_name,
@@ -304,6 +315,7 @@ exports.getRoomByIdOrSlugName = async (req, res) => {
       featured_room: room?.featured_room,
       room_description: room?.room_description,
       room_status: room?.room_status,
+      unavailable_dates: unavailableDates,
       extra_facilities: room?.extra_facilities,
       room_images: room?.room_images?.map(
         (img) => ({ url: process.env.APP_BASE_URL + img.url })

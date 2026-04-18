@@ -14,7 +14,7 @@ const User = require('../models/user.model');
 const logger = require('../middleware/winston.logger');
 const { errorResponse, successResponse } = require('../configs/app.response');
 const loginResponse = require('../configs/login.response');
-const sendEmail = require('../configs/send.mail');
+const { sendEmail } = require('../configs/send.mail');
 
 // TODO: Controller for registration new user
 exports.register = async (req, res) => {

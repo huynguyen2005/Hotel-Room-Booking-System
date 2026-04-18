@@ -7,95 +7,138 @@
  *
  */
 
-import { Card, Statistic } from 'antd';
+import {
+  Card, Col, Progress, Row, Statistic, Tag
+} from 'antd';
+import {
+  CheckCircleOutlined,
+  StopOutlined,
+  TeamOutlined,
+  UserOutlined
+} from '@ant-design/icons';
 import React from 'react';
 import CountUp from 'react-countup';
 import { useNavigate } from 'react-router-dom';
 
 const formatter = (value) => <CountUp end={value} separator=',' />;
-const gridStyle = { width: '25%', textAlign: 'center' };
 
 function UsersCard({ loading, data }) {
   const navigate = useNavigate();
+  const totalUsers = data?.total_users || 0;
+  const verifiedUsers = data?.verified_user || 0;
+  const blockedUsers = data?.blocked_status_user || 0;
+  const activeUsers = (data?.login_status_user || 0) + (data?.logout_status_user || 0);
+  const verifiedPercent = totalUsers ? Math.round((verifiedUsers / totalUsers) * 100) : 0;
+  const blockedPercent = totalUsers ? Math.round((blockedUsers / totalUsers) * 100) : 0;
 
   return (
     <Card
-      className='w-full cursor-pointer md:w-[49.5%]'
+      className='dashboard-analytics-card w-full cursor-pointer md:w-[49.5%]'
       onClick={() => navigate('/main/users')}
-      title='Users Information:'
       loading={loading}
+      bordered={false}
     >
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Total Users'
-          formatter={formatter}
-          value={data?.total_users || 0}
-        />
-      </Card.Grid>
+      <div className='dashboard-card-head'>
+        <div>
+          <p className='dashboard-card-kicker'>Audience Overview</p>
+          <h3 className='dashboard-card-title'>Users</h3>
+        </div>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Admin Role Users'
-          formatter={formatter}
-          value={data?.admin_role_user || 0}
-        />
-      </Card.Grid>
+        <Tag color='blue' icon={<TeamOutlined />}>Live</Tag>
+      </div>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='User Role Users'
-          formatter={formatter}
-          value={data?.user_role_user || 0}
-        />
-      </Card.Grid>
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <div className='dashboard-hero-stat dashboard-hero-stat-users'>
+            <Statistic
+              title='Total Users'
+              formatter={formatter}
+              value={totalUsers}
+            />
+            <div className='dashboard-hero-meta'>
+              <span>
+                <CheckCircleOutlined />
+                {' '}
+                {verifiedUsers}
+                {' '}
+                verified
+              </span>
+              <span>
+                <StopOutlined />
+                {' '}
+                {blockedUsers}
+                {' '}
+                blocked
+              </span>
+            </div>
+          </div>
+        </Col>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Register Users'
-          formatter={formatter}
-          value={data?.register_status_user || 0}
-        />
-      </Card.Grid>
+        <Col xs={24} md={12}>
+          <div className='dashboard-mini-stat'>
+            <Statistic
+              title='Admin Accounts'
+              formatter={formatter}
+              prefix={<UserOutlined />}
+              value={data?.admin_role_user || 0}
+            />
+          </div>
+        </Col>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Login Users'
-          formatter={formatter}
-          value={data?.login_status_user || 0}
-        />
-      </Card.Grid>
+        <Col xs={24} md={12}>
+          <div className='dashboard-mini-stat'>
+            <Statistic
+              title='Customer Accounts'
+              formatter={formatter}
+              prefix={<TeamOutlined />}
+              value={data?.user_role_user || 0}
+            />
+          </div>
+        </Col>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Logout Users'
-          formatter={formatter}
-          value={data?.logout_status_user || 0}
-        />
-      </Card.Grid>
+        <Col span={24}>
+          <div className='dashboard-progress-block'>
+            <div className='dashboard-progress-row'>
+              <span>Verification Rate</span>
+              <strong>
+                {verifiedPercent}
+                %
+              </strong>
+            </div>
+            <Progress percent={verifiedPercent} strokeColor='#1677ff' showInfo={false} />
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Blocked Users'
-          formatter={formatter}
-          value={data?.blocked_status_user || 0}
-        />
-      </Card.Grid>
+            <div className='dashboard-progress-row'>
+              <span>Blocked Share</span>
+              <strong>
+                {blockedPercent}
+                %
+              </strong>
+            </div>
+            <Progress percent={blockedPercent} strokeColor='#fa541c' showInfo={false} />
+          </div>
+        </Col>
 
-      <Card.Grid style={gridStyle}>
-        <Statistic
-          className='whitespace-normal lg:whitespace-nowrap'
-          title='Verified Users'
-          formatter={formatter}
-          value={data?.verified_user || 0}
-        />
-      </Card.Grid>
+        <Col span={24}>
+          <div className='dashboard-breakdown-grid'>
+            <div className='dashboard-breakdown-item'>
+              <span>Registered</span>
+              <strong>{formatter(data?.register_status_user || 0)}</strong>
+            </div>
+            <div className='dashboard-breakdown-item'>
+              <span>Logged In</span>
+              <strong>{formatter(data?.login_status_user || 0)}</strong>
+            </div>
+            <div className='dashboard-breakdown-item'>
+              <span>Logged Out</span>
+              <strong>{formatter(data?.logout_status_user || 0)}</strong>
+            </div>
+            <div className='dashboard-breakdown-item'>
+              <span>Active Pool</span>
+              <strong>{formatter(activeUsers)}</strong>
+            </div>
+          </div>
+        </Col>
+      </Row>
     </Card>
   );
 }

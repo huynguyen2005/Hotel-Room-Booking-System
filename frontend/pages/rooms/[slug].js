@@ -100,7 +100,7 @@ function RoomPreview(props) {
                   <h6>{props?.room?.data?.allow_pets ? 'pets allowed' : 'no pets allowed'}</h6>
                   <h6>{props?.room?.data?.provide_breakfast && 'free breakfast included'}</h6>
 
-                  {props?.room?.data?.room_status === 'available' ? (
+                  {props?.room?.data?.room_status !== 'unavailable' ? (
                     <Button
                       className='btn-primary'
                       type='default'
@@ -138,6 +138,7 @@ function RoomPreview(props) {
         <OrderPlaceModal
           bookingModal={bookingModal}
           setBookingModal={setBookingModal}
+          unavailableDates={props?.room?.data?.unavailable_dates || []}
         />
       )}
     </>

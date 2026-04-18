@@ -144,4 +144,156 @@ a {
   @apply whitespace-nowrap text-txt-white text-[25px] font-text-font font-medium truncate block;
 }
 
+.dashboard-shell {
+  @apply space-y-5;
+}
+
+.dashboard-overview-banner {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.24), transparent 38%),
+    linear-gradient(135deg, #0f172a, #1d4ed8 55%, #38bdf8);
+  @apply rounded-2xl px-5 py-6 text-txt-white shadow-lg flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between;
+}
+
+.dashboard-overview-kicker {
+  @apply uppercase tracking-[0.25em] text-[11px] font-bold text-white/70 mb-2;
+}
+
+.dashboard-overview-title {
+  @apply text-[28px] font-text-font font-semibold leading-tight text-txt-white;
+}
+
+.dashboard-overview-copy {
+  @apply mt-2 max-w-[640px] text-[14px] leading-6 text-white/80;
+}
+
+.dashboard-overview-pills {
+  @apply flex flex-wrap items-center gap-3;
+}
+
+.dashboard-overview-pill {
+  @apply rounded-2xl bg-white/15 px-4 py-3 backdrop-blur-sm min-w-[110px];
+}
+
+.dashboard-overview-pill span {
+  @apply block text-[11px] uppercase tracking-[0.15em] text-white/70;
+}
+
+.dashboard-overview-pill strong {
+  @apply block mt-1 text-[22px] font-semibold text-txt-white;
+}
+
+.dashboard-cards-grid {
+  @apply flex flex-row flex-wrap items-stretch justify-between gap-4;
+}
+
+.dashboard-skeleton-card {
+  @apply w-full rounded-2xl bg-bg-white p-5 shadow md:w-[49.2%];
+}
+
+.dashboard-skeleton-card-wide {
+  @apply md:w-full;
+}
+
+.dashboard-analytics-card {
+  @apply rounded-2xl border-0 bg-bg-white shadow-md;
+}
+
+.dashboard-analytics-card .ant-card-body {
+  @apply p-5 md:p-6;
+}
+
+.dashboard-analytics-card-wide {
+  @apply md:w-full;
+}
+
+.dashboard-card-head {
+  @apply flex items-start justify-between gap-3 mb-5;
+}
+
+.dashboard-card-kicker {
+  @apply uppercase tracking-[0.22em] text-[11px] font-bold text-slate-400 mb-1;
+}
+
+.dashboard-card-title {
+  @apply text-[24px] leading-tight font-text-font font-semibold text-slate-900;
+}
+
+.dashboard-hero-stat {
+  @apply rounded-2xl px-5 py-5 text-white shadow-inner;
+}
+
+.dashboard-hero-stat .ant-statistic {
+  @apply text-white;
+}
+
+.dashboard-hero-stat .ant-statistic-title {
+  @apply text-white/70 text-[13px];
+}
+
+.dashboard-hero-stat .ant-statistic-content {
+  @apply text-white;
+}
+
+.dashboard-hero-stat-users {
+  background: linear-gradient(135deg, #2563eb, #0f172a);
+}
+
+.dashboard-hero-stat-rooms {
+  background: linear-gradient(135deg, #0f766e, #164e63);
+}
+
+.dashboard-hero-stat-bookings {
+  background: linear-gradient(135deg, #7c3aed, #312e81);
+  @apply h-full;
+}
+
+.dashboard-hero-meta {
+  @apply mt-4 flex flex-wrap gap-2 text-[12px] text-white/85;
+}
+
+.dashboard-hero-meta span {
+  @apply inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1;
+}
+
+.dashboard-mini-stat {
+  @apply rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 h-full;
+}
+
+.dashboard-mini-stat .ant-statistic-title {
+  @apply text-slate-500 text-[13px];
+}
+
+.dashboard-mini-stat .ant-statistic-content {
+  @apply text-[24px] font-semibold text-slate-900;
+}
+
+.dashboard-progress-block {
+  @apply rounded-2xl border border-slate-200 bg-white px-4 py-4;
+}
+
+.dashboard-progress-row {
+  @apply flex items-center justify-between text-[13px] font-medium text-slate-600 mb-2;
+}
+
+.dashboard-breakdown-grid {
+  @apply grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4;
+}
+
+.dashboard-breakdown-grid-booking {
+  @apply xl:grid-cols-6;
+}
+
+.dashboard-breakdown-item {
+  @apply rounded-2xl bg-slate-950 px-4 py-4 text-white;
+}
+
+.dashboard-breakdown-item span {
+  @apply block text-[12px] uppercase tracking-[0.16em] text-white/55;
+}
+
+.dashboard-breakdown-item strong {
+  @apply block mt-2 text-[22px] font-semibold text-white;
+}
+
 /* dashboard components style end */

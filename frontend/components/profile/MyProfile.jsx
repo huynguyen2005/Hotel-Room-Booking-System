@@ -78,7 +78,7 @@ function MyProfile() {
               notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
               reject();
             });
-        }).catch(() => notificationWithIcon('error', 'ERROR', 'Oops errors!'));
+        });
       }
     });
   };
