@@ -233,16 +233,7 @@ function Main() {
         </Content>
 
         <Footer className='text-center font-text-font font-medium '>
-          ©2023 Beach Resort — Developed By
-          {' '}
-          <a
-            className='text-color-primary hover:text-color-secondary'
-            href='https://srmukul.com'
-            target='_blank'
-            rel='noreferrer'
-          >
-            Md. Samiur Rahman (Mukul)
-          </a>
+          ©2026 Beach Resort
         </Footer>
       </Layout>
     </Layout>

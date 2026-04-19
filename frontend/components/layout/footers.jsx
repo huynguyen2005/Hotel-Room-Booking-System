@@ -14,15 +14,7 @@ function Footers() {
     <footer className='footer'>
       <h2>Beach Resort | Hotel Room Booking System</h2>
       <p>
-        ©2023 Beach Resort — Developed By
-        {' '}
-        <a
-          href='https://srmukul.com'
-          rel='noreferrer'
-          target='_blank'
-        >
-          Md. Samiur Rahman (Mukul)
-        </a>
+        ©2023 Beach Resort 
       </p>
     </footer>
   );
