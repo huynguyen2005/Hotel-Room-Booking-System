@@ -7,12 +7,13 @@
  *
  */
 
-import { HistoryOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { HistoryOutlined, LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import {
   Avatar, Button, Popover, Typography
 } from 'antd';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import ChangePasswordModal from '../utilities/ChangePasswordModal';
 import useMediaQuery from '../../hooks/useMediaQuery';
 import ApiService from '../../utils/apiService';
 import { getSessionUser, removeSessionAndLogoutUser } from '../../utils/authentication';
@@ -22,7 +23,8 @@ const { Title } = Typography;
 
 function UserPopover() {
   const isDesktop = useMediaQuery('(min-width: 1200px)');
-  const [loading, setLoading] = useState();
+  const [loading, setLoading] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const user = getSessionUser();
   const router = useRouter();
 
@@ -78,6 +80,15 @@ function UserPopover() {
             </Button>
             <Button
               style={{ color: '#000', padding: '0px' }}
+              icon={<LockOutlined />}
+              onClick={() => setChangePasswordOpen(true)}
+              size='middle'
+              type='link'
+            >
+              Đổi mật khẩu
+            </Button>
+            <Button
+              style={{ color: '#000', padding: '0px' }}
               icon={<LogoutOutlined />}
               onClick={userLogout}
               size='middle'
@@ -112,6 +123,11 @@ function UserPopover() {
           {`Welcome! ${user?.fullName || 'N/A'}`}
         </Title>
       )}
+
+      <ChangePasswordModal
+        open={changePasswordOpen}
+        setOpen={setChangePasswordOpen}
+      />
     </>
   );
 }

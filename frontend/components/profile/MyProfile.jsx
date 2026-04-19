@@ -19,6 +19,7 @@ import ApiService from '../../utils/apiService';
 import { getSessionToken, getSessionUser, setSessionUserKeyAgainstValue } from '../../utils/authentication';
 import notificationWithIcon from '../../utils/notification';
 import { userStatusAsResponse } from '../../utils/responseAsStatus';
+import ChangePasswordModal from '../utilities/ChangePasswordModal';
 import ProfileEditModal from './ProfileEditModal';
 
 const { publicRuntimeConfig } = getConfig();
@@ -26,6 +27,7 @@ const { confirm } = Modal;
 
 function MyProfile() {
   const [editProfileModal, setEditProfileModal] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const token = getSessionToken();
   const user = getSessionUser();
 
@@ -109,6 +111,16 @@ function MyProfile() {
                     Verify Email
                   </Button>
                 )}
+
+                <Button
+                  style={{ marginTop: '10px', marginRight: '20px' }}
+                  onClick={() => setChangePasswordOpen(true)}
+                  shape='default'
+                  type='default'
+                  size='large'
+                >
+                  Change Password
+                </Button>
 
                 <Button
                   style={{ marginTop: '10px', marginRight: '20px' }}
@@ -210,6 +222,11 @@ function MyProfile() {
           setEditProfileModal={setEditProfileModal}
         />
       )}
+
+      <ChangePasswordModal
+        open={changePasswordOpen}
+        setOpen={setChangePasswordOpen}
+      />
     </>
   );
 }
