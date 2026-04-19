@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -16,19 +16,19 @@ function Room({ room }) {
       <div className='img-container'>
         <img
           src={room?.room_images[0]?.url || '/img/jpeg/room-1.jpeg'}
-          alt='single room'
+          alt='room'
         />
 
         <div className='price-top'>
           <h6>{`$ ${room?.room_price}`}</h6>
-          <p>per night</p>
+          <p>mỗi đêm</p>
         </div>
 
         <Link
           className='btn-primary room-link'
           href={`/rooms/${room?.room_slug}`}
         >
-          Feature
+          Chi tiết
         </Link>
       </div>
 

@@ -37,6 +37,88 @@ const formatBookingDatesForEmail = (bookingDates = []) => bookingDates
   })
   .join(', ');
 
+const mapBookingResponse = (data) => ({
+  id: data?.id,
+  booking_dates: data?.booking_dates,
+  booking_status: data?.booking_status,
+  customer_info: {
+    customer_name: data?.customer_info?.customer_name,
+    customer_phone: data?.customer_info?.customer_phone,
+    customer_email: data?.customer_info?.customer_email
+  },
+  payment_info: {
+    payment_method: data?.payment_info?.payment_method,
+    payment_status: data?.payment_info?.payment_status,
+    transaction_id: data?.payment_info?.transaction_id,
+    paid_at: data?.payment_info?.paid_at
+  },
+  stay_info: {
+    checked_in_at: data?.stay_info?.checked_in_at,
+    checked_out_at: data?.stay_info?.checked_out_at
+  },
+  reviews: !data?.reviews ? null : {
+    id: data?.reviews.id,
+    room_id: data?.reviews.room_id,
+    booking_id: data?.reviews.booking_id,
+    rating: data?.reviews.rating,
+    message: data?.reviews.message,
+    reviews_by: {
+      id: data?.reviews?.user_id?._id,
+      userName: data?.reviews?.user_id?.userName,
+      fullName: data?.reviews?.user_id?.fullName,
+      email: data?.reviews?.user_id?.email,
+      phone: data?.reviews?.user_id?.phone,
+      avatar: process.env.APP_BASE_URL + data?.reviews?.user_id?.avatar,
+      gender: data?.reviews?.user_id?.gender,
+      dob: data?.reviews?.user_id?.dob,
+      address: data?.reviews?.user_id?.address,
+      role: data?.reviews?.user_id?.role,
+      verified: data?.reviews?.user_id?.verified,
+      status: data?.reviews?.user_id?.status,
+      createdAt: data?.reviews?.user_id?.createdAt,
+      updatedAt: data?.reviews?.user_id?.updatedAt
+    },
+    created_at: data?.reviews?.createdAt,
+    updated_at: data?.reviews?.updatedAt
+  },
+  booking_by: {
+    id: data?.booking_by?._id,
+    userName: data?.booking_by?.userName,
+    fullName: data?.booking_by?.fullName,
+    email: data?.booking_by?.email,
+    phone: data?.booking_by?.phone,
+    avatar: process.env.APP_BASE_URL + data?.booking_by?.avatar,
+    gender: data?.booking_by?.gender,
+    dob: data?.booking_by?.dob,
+    address: data?.booking_by?.address,
+    role: data?.booking_by?.role,
+    verified: data?.booking_by?.verified,
+    status: data?.booking_by?.status,
+    createdAt: data?.booking_by?.createdAt,
+    updatedAt: data?.booking_by?.updatedAt
+  },
+  room: {
+    id: data?.room_id?._id,
+    room_name: data?.room_id?.room_name,
+    room_slug: data?.room_id?.room_slug,
+    room_type: data?.room_id?.room_type,
+    room_price: data?.room_id?.room_price,
+    room_size: data?.room_id?.room_size,
+    room_capacity: data?.room_id?.room_capacity,
+    allow_pets: data?.room_id?.allow_pets,
+    provide_breakfast: data?.room_id?.provide_breakfast,
+    featured_room: data?.room_id?.featured_room,
+    room_description: data?.room_id?.room_description,
+    room_status: data?.room_id?.room_status,
+    extra_facilities: data?.room_id?.extra_facilities,
+    room_images: data?.room_id?.room_images?.map(
+      (img) => ({ url: process.env.APP_BASE_URL + img.url })
+    )
+  },
+  created_at: data?.createdAt,
+  updated_at: data?.updatedAt
+});
+
 const sendBookingStatusMail = async (booking, status) => {
   if (!booking?.booking_by?.verified || !booking?.booking_by?.email) {
     return;
@@ -58,11 +140,11 @@ const sendBookingStatusMail = async (booking, status) => {
       message: `Your booking for ${roomName} has been rejected. Requested dates: ${bookingDates}.`,
       ctaLabel: 'View Booking'
     },
-    'in-reviews': {
-      subject: 'Room Booking Ready For Review',
-      title: 'Room Booking Ready For Review',
-      message: `Your stay for ${roomName} has ended. You can now review your booking for dates: ${bookingDates}.`,
-      ctaLabel: 'Write Review'
+    'no-show': {
+      subject: 'Room Booking Marked As No-Show',
+      title: 'Room Booking Marked As No-Show',
+      message: `Your booking for ${roomName} has been marked as no-show because the guest did not check in.`,
+      ctaLabel: 'View Booking'
     },
     completed: {
       subject: 'Room Booking Completed',
@@ -94,6 +176,12 @@ const sendBookingStatusMail = async (booking, status) => {
 // TODO: controller for placed booking order
 exports.placedBookingOrder = async (req, res) => {
   try {
+    const {
+      booking_dates: bookingDates,
+      customer_info: customerInfo,
+      payment_info: paymentInfo
+    } = req.body;
+
     // finding by room id
     let myRoom = null;
 
@@ -125,16 +213,56 @@ exports.placedBookingOrder = async (req, res) => {
       ));
     }
 
-    // prepared user provided data to store database
+    if (!Array.isArray(bookingDates) || bookingDates.length === 0) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        '`booking_dates` field is required'
+      ));
+    }
+
+    if (!customerInfo?.customer_name || !customerInfo?.customer_phone || !customerInfo?.customer_email) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Please provide full customer information'
+      ));
+    }
+
+    if (!paymentInfo?.payment_method || paymentInfo.payment_method !== 'counter') {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Only counter payment is supported'
+      ));
+    }
+
+    const preparedPaymentInfo = {
+      payment_method: 'counter',
+      payment_status: 'unpaid',
+      transaction_id: null,
+      paid_at: null
+    };
+
     const data = {
       room_id: req.params.id,
-      booking_dates: req.body.booking_dates,
-      booking_by: req.user.id
+      booking_dates: bookingDates,
+      booking_by: req.user.id,
+      customer_info: {
+        customer_name: customerInfo.customer_name.trim(),
+        customer_phone: customerInfo.customer_phone.trim(),
+        customer_email: customerInfo.customer_email.trim().toLowerCase()
+      },
+      payment_info: preparedPaymentInfo,
+      stay_info: {
+        checked_in_at: null,
+        checked_out_at: null
+      }
     };
 
     const conflictingBookings = await findApprovedBookingConflicts(
       req.params.id,
-      data.booking_dates
+      bookingDates
     );
 
     if (conflictingBookings.length > 0) {
@@ -152,7 +280,7 @@ exports.placedBookingOrder = async (req, res) => {
     res.status(201).json(successResponse(
       0,
       'SUCCESS',
-      'Your room booking order placed successful. Please wait for confirmation.',
+      'Your room booking order has been placed successful. Please wait for confirmation.',
       booking
     ));
   } catch (error) {
@@ -195,72 +323,7 @@ exports.getBookingOrderByUserId = async (req, res) => {
       .paginate();
     const findBooking = await bookingQuery.query;
 
-    const mapperBooking = findBooking?.map((data) => ({
-      id: data?.id,
-      booking_dates: data?.booking_dates,
-      booking_status: data?.booking_status,
-      reviews: !data?.reviews ? null : {
-        id: data?.reviews.id,
-        room_id: data?.reviews.room_id,
-        booking_id: data?.reviews.booking_id,
-        rating: data?.reviews.rating,
-        message: data?.reviews.message,
-        reviews_by: {
-          id: data?.reviews?.user_id?._id,
-          userName: data?.reviews?.user_id?.userName,
-          fullName: data?.reviews?.user_id?.fullName,
-          email: data?.reviews?.user_id?.email,
-          phone: data?.reviews?.user_id?.phone,
-          avatar: process.env.APP_BASE_URL + data?.reviews?.user_id?.avatar,
-          gender: data?.reviews?.user_id?.gender,
-          dob: data?.reviews?.user_id?.dob,
-          address: data?.reviews?.user_id?.address,
-          role: data?.reviews?.user_id?.role,
-          verified: data?.reviews?.user_id?.verified,
-          status: data?.reviews?.user_id?.status,
-          createdAt: data?.reviews?.user_id?.createdAt,
-          updatedAt: data?.reviews?.user_id?.updatedAt
-        },
-        created_at: data?.reviews?.createdAt,
-        updated_at: data?.reviews?.updatedAt
-      },
-      booking_by: {
-        id: data?.booking_by?._id,
-        userName: data?.booking_by?.userName,
-        fullName: data?.booking_by?.fullName,
-        email: data?.booking_by?.email,
-        phone: data?.booking_by?.phone,
-        avatar: process.env.APP_BASE_URL + data?.booking_by?.avatar,
-        gender: data?.booking_by?.gender,
-        dob: data?.booking_by?.dob,
-        address: data?.booking_by?.address,
-        role: data?.booking_by?.role,
-        verified: data?.booking_by?.verified,
-        status: data?.booking_by?.status,
-        createdAt: data?.booking_by?.createdAt,
-        updatedAt: data?.booking_by?.updatedAt
-      },
-      room: {
-        id: data?.room_id?._id,
-        room_name: data?.room_id?.room_name,
-        room_slug: data?.room_id?.room_slug,
-        room_type: data?.room_id?.room_type,
-        room_price: data?.room_id?.room_price,
-        room_size: data?.room_id?.room_size,
-        room_capacity: data?.room_id?.room_capacity,
-        allow_pets: data?.room_id?.allow_pets,
-        provide_breakfast: data?.room_id?.provide_breakfast,
-        featured_room: data?.room_id?.featured_room,
-        room_description: data?.room_id?.room_description,
-        room_status: data?.room_id?.room_status,
-        extra_facilities: data?.room_id?.extra_facilities,
-        room_images: data?.room_id?.room_images?.map(
-          (img) => ({ url: process.env.APP_BASE_URL + img.url })
-        )
-      },
-      created_at: data?.createdAt,
-      updated_at: data?.updatedAt
-    }));
+    const mapperBooking = findBooking?.map(mapBookingResponse);
 
     // success response with the booking list
     res.status(200).json(successResponse(
@@ -370,72 +433,7 @@ exports.getBookingOrderForAdmin = async (req, res) => {
       .paginate();
     const findBooking = await bookingQuery.query;
 
-    const mapperBooking = findBooking?.map((data) => ({
-      id: data?.id,
-      booking_dates: data?.booking_dates,
-      booking_status: data?.booking_status,
-      reviews: !data?.reviews ? null : {
-        id: data?.reviews.id,
-        room_id: data?.reviews.room_id,
-        booking_id: data?.reviews.booking_id,
-        rating: data?.reviews.rating,
-        message: data?.reviews.message,
-        reviews_by: {
-          id: data?.reviews?.user_id?._id,
-          userName: data?.reviews?.user_id?.userName,
-          fullName: data?.reviews?.user_id?.fullName,
-          email: data?.reviews?.user_id?.email,
-          phone: data?.reviews?.user_id?.phone,
-          avatar: process.env.APP_BASE_URL + data?.reviews?.user_id?.avatar,
-          gender: data?.reviews?.user_id?.gender,
-          dob: data?.reviews?.user_id?.dob,
-          address: data?.reviews?.user_id?.address,
-          role: data?.reviews?.user_id?.role,
-          verified: data?.reviews?.user_id?.verified,
-          status: data?.reviews?.user_id?.status,
-          createdAt: data?.reviews?.user_id?.createdAt,
-          updatedAt: data?.reviews?.user_id?.updatedAt
-        },
-        created_at: data?.reviews?.createdAt,
-        updated_at: data?.reviews?.updatedAt
-      },
-      booking_by: {
-        id: data?.booking_by?._id,
-        userName: data?.booking_by?.userName,
-        fullName: data?.booking_by?.fullName,
-        email: data?.booking_by?.email,
-        phone: data?.booking_by?.phone,
-        avatar: process.env.APP_BASE_URL + data?.booking_by?.avatar,
-        gender: data?.booking_by?.gender,
-        dob: data?.booking_by?.dob,
-        address: data?.booking_by?.address,
-        role: data?.booking_by?.role,
-        verified: data?.booking_by?.verified,
-        status: data?.booking_by?.status,
-        createdAt: data?.booking_by?.createdAt,
-        updatedAt: data?.booking_by?.updatedAt
-      },
-      room: {
-        id: data?.room_id?._id,
-        room_name: data?.room_id?.room_name,
-        room_slug: data?.room_id?.room_slug,
-        room_type: data?.room_id?.room_type,
-        room_price: data?.room_id?.room_price,
-        room_size: data?.room_id?.room_size,
-        room_capacity: data?.room_id?.room_capacity,
-        allow_pets: data?.room_id?.allow_pets,
-        provide_breakfast: data?.room_id?.provide_breakfast,
-        featured_room: data?.room_id?.featured_room,
-        room_description: data?.room_id?.room_description,
-        room_status: data?.room_id?.room_status,
-        extra_facilities: data?.room_id?.extra_facilities,
-        room_images: data?.room_id?.room_images?.map(
-          (img) => ({ url: process.env.APP_BASE_URL + img.url })
-        )
-      },
-      created_at: data?.createdAt,
-      updated_at: data?.updatedAt
-    }));
+    const mapperBooking = findBooking?.map(mapBookingResponse);
 
     // success response with the booking list
     res.status(200).json(successResponse(
@@ -590,63 +588,6 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
           ));
         }
         break;
-      case 'in-reviews':
-        if (booking.booking_status === 'approved') {
-          if (bookingDatesBeforeCurrentDate(booking?.booking_dates).isAnyDateInPast) {
-            // update the booking status to `in-reviews`
-            booking.booking_status = 'in-reviews';
-            await booking.save({ validateBeforeSave: false });
-
-            const reviewBooking = await Booking.findById(booking._id)
-              .populate('booking_by')
-              .populate('room_id');
-
-            if (reviewBooking?.booking_by?.verified) {
-              try {
-                await sendBookingStatusMail(reviewBooking, 'in-reviews');
-              } catch (mailError) {
-                logger.error(mailError);
-              }
-            }
-          } else {
-            return res.status(400).json(errorResponse(
-              1,
-              'FAILED',
-              'Sorry! This booking cannot be `in-reviews` because the stay dates have not passed yet'
-            ));
-          }
-        } else {
-          return res.status(400).json(errorResponse(
-            1,
-            'FAILED',
-            'This booking cannot be `in-reviews` as it is no longer in the `approved` status'
-          ));
-        }
-        break;
-      case 'completed':
-        if (booking.booking_status === 'in-reviews') {
-          booking.booking_status = 'completed';
-          await booking.save({ validateBeforeSave: false });
-
-          const completedBooking = await Booking.findById(booking._id)
-            .populate('booking_by')
-            .populate('room_id');
-
-          if (completedBooking?.booking_by?.verified) {
-            try {
-              await sendBookingStatusMail(completedBooking, 'completed');
-            } catch (mailError) {
-              logger.error(mailError);
-            }
-          }
-        } else {
-          return res.status(400).json(errorResponse(
-            1,
-            'FAILED',
-            'This booking cannot be `completed` as it is no longer in the `in-reviews` status'
-          ));
-        }
-        break;
       default:
         return res.status(400).json(errorResponse(
           1,
@@ -660,6 +601,216 @@ exports.updatedBookingOrderByAdmin = async (req, res) => {
       0,
       'SUCCESS',
       `Booking order has been '${booking.booking_status}' successful`,
+      booking
+    ));
+  } catch (error) {
+    res.status(500).json(errorResponse(
+      2,
+      'SERVER SIDE ERROR',
+      error
+    ));
+  }
+};
+
+// TODO: controller for check-in booking by admin
+exports.checkInBookingByAdmin = async (req, res) => {
+  try {
+    let booking = null;
+
+    if (/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+      booking = await Booking.findById(req.params.id);
+    } else {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Something went wrong. Probably booking id missing/incorrect'
+      ));
+    }
+
+    if (!booking) {
+      return res.status(404).json(errorResponse(
+        4,
+        'UNKNOWN ACCESS',
+        'Booking not found'
+      ));
+    }
+
+    if (booking.booking_status !== 'approved') {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Only approved bookings can be checked in'
+      ));
+    }
+
+    if (booking?.stay_info?.checked_in_at) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'This booking has already been checked in'
+      ));
+    }
+
+    booking.stay_info = {
+      ...(booking.stay_info || {}),
+      checked_in_at: new Date(),
+      checked_out_at: booking?.stay_info?.checked_out_at || null
+    };
+    await booking.save({ validateBeforeSave: false });
+
+    res.status(200).json(successResponse(
+      0,
+      'SUCCESS',
+      'Booking check-in successful',
+      booking
+    ));
+  } catch (error) {
+    res.status(500).json(errorResponse(
+      2,
+      'SERVER SIDE ERROR',
+      error
+    ));
+  }
+};
+
+// TODO: controller for check-out booking by admin
+exports.checkOutBookingByAdmin = async (req, res) => {
+  try {
+    let booking = null;
+
+    if (/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+      booking = await Booking.findById(req.params.id);
+    } else {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Something went wrong. Probably booking id missing/incorrect'
+      ));
+    }
+
+    if (!booking) {
+      return res.status(404).json(errorResponse(
+        4,
+        'UNKNOWN ACCESS',
+        'Booking not found'
+      ));
+    }
+
+    if (booking.booking_status !== 'approved') {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Only approved bookings can be checked out'
+      ));
+    }
+
+    if (!booking?.stay_info?.checked_in_at) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'This booking must be checked in before checkout'
+      ));
+    }
+
+    if (booking?.stay_info?.checked_out_at) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'This booking has already been checked out'
+      ));
+    }
+
+    booking.stay_info = {
+      ...(booking.stay_info || {}),
+      checked_in_at: booking.stay_info.checked_in_at,
+      checked_out_at: new Date()
+    };
+
+    if (booking?.payment_info?.payment_method === 'counter') {
+      booking.payment_info = {
+        ...(booking.payment_info || {}),
+        payment_method: 'counter',
+        payment_status: 'paid',
+        transaction_id: booking?.payment_info?.transaction_id || null,
+        paid_at: new Date()
+      };
+    }
+
+    await booking.save({ validateBeforeSave: false });
+
+    res.status(200).json(successResponse(
+      0,
+      'SUCCESS',
+      'Booking check-out successful',
+      booking
+    ));
+  } catch (error) {
+    res.status(500).json(errorResponse(
+      2,
+      'SERVER SIDE ERROR',
+      error
+    ));
+  }
+};
+
+// TODO: controller for mark booking as no-show by admin
+exports.markBookingAsNoShowByAdmin = async (req, res) => {
+  try {
+    let booking = null;
+
+    if (/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+      booking = await Booking.findById(req.params.id);
+    } else {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Something went wrong. Probably booking id missing/incorrect'
+      ));
+    }
+
+    if (!booking) {
+      return res.status(404).json(errorResponse(
+        4,
+        'UNKNOWN ACCESS',
+        'Booking not found'
+      ));
+    }
+
+    if (booking.booking_status !== 'approved') {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Only approved bookings can be marked as no-show'
+      ));
+    }
+
+    if (booking?.stay_info?.checked_in_at) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Checked-in bookings cannot be marked as no-show'
+      ));
+    }
+
+    booking.booking_status = 'no-show';
+    await booking.save({ validateBeforeSave: false });
+
+    const noShowBooking = await Booking.findById(booking._id)
+      .populate('booking_by')
+      .populate('room_id');
+
+    if (noShowBooking?.booking_by?.verified) {
+      try {
+        await sendBookingStatusMail(noShowBooking, 'no-show');
+      } catch (mailError) {
+        logger.error(mailError);
+      }
+    }
+
+    res.status(200).json(successResponse(
+      0,
+      'SUCCESS',
+      'Booking marked as no-show successful',
       booking
     ));
   } catch (error) {

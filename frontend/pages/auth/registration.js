@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -29,7 +29,6 @@ function Registration() {
   const [form] = Form.useForm();
   const router = useRouter();
 
-  // function to handle register new user
   const onFinish = (values) => {
     setLoading(true);
     const data = {
@@ -47,22 +46,22 @@ function Registration() {
       .then((response) => {
         setLoading(false);
         if (response?.result_code === 0) {
-          notificationWithIcon('success', 'SUCCESS', response?.result?.message || 'Your registration successful');
+          notificationWithIcon('success', 'THÀNH CÔNG', response?.result?.message || 'Đăng ký tài khoản thành công.');
           form.resetFields();
           router.push('/auth/login');
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       })
       .catch((err) => {
         setLoading(false);
-        notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       });
   };
 
   return (
     <PublicRoute>
-      <MainLayout title='Beach Resort ― Registration'>
+      <MainLayout title='Beach Resort - Đăng ký'>
         <div style={{ width: '400px', height: 'calc(100vh - 205px)', margin: '0 auto' }}>
           <Form
             form={form}
@@ -76,12 +75,12 @@ function Registration() {
               name='userName'
               rules={[{
                 required: true,
-                message: 'Please input your User Name!'
+                message: 'Vui lòng nhập tên đăng nhập.'
               }]}
             >
               <Input
                 prefix={<UserOutlined className='site-form-item-icon' />}
-                placeholder='User Name'
+                placeholder='Tên đăng nhập'
                 size='large'
                 allowClear
               />
@@ -91,12 +90,12 @@ function Registration() {
               name='fullName'
               rules={[{
                 required: true,
-                message: 'Please input your Full Name!'
+                message: 'Vui lòng nhập họ và tên.'
               }]}
             >
               <Input
                 prefix={<UserOutlined className='site-form-item-icon' />}
-                placeholder='Full Name'
+                placeholder='Họ và tên'
                 size='large'
                 allowClear
               />
@@ -106,7 +105,7 @@ function Registration() {
               name='email'
               rules={[{
                 required: true,
-                message: 'Please input your Email!'
+                message: 'Vui lòng nhập email.'
               }]}
             >
               <Input
@@ -121,12 +120,12 @@ function Registration() {
               name='phone'
               rules={[{
                 required: true,
-                message: 'Please input your Phone!'
+                message: 'Vui lòng nhập số điện thoại.'
               }]}
             >
               <Input
                 prefix={<PhoneOutlined className='site-form-item-icon' />}
-                placeholder='Phone'
+                placeholder='Số điện thoại'
                 size='large'
                 allowClear
                 type='tel'
@@ -137,12 +136,12 @@ function Registration() {
               name='dob'
               rules={[{
                 required: true,
-                message: 'Please input your Date Of Birth!'
+                message: 'Vui lòng chọn ngày sinh.'
               }]}
             >
               <DatePicker
                 style={{ width: '100%' }}
-                placeholder='Pick your Date Of Birth'
+                placeholder='Chọn ngày sinh'
                 size='large'
                 allowClear
               />
@@ -152,12 +151,12 @@ function Registration() {
               name='gender'
               rules={[{
                 required: true,
-                message: 'Please input your Gender!'
+                message: 'Vui lòng chọn giới tính.'
               }]}
             >
-              <Select placeholder='-- select your gender --' size='large' allowClear>
-                <Select.Option value='male'>Male</Select.Option>
-                <Select.Option value='female'>Female</Select.Option>
+              <Select placeholder='-- chọn giới tính --' size='large' allowClear>
+                <Select.Option value='male'>Nam</Select.Option>
+                <Select.Option value='female'>Nữ</Select.Option>
               </Select>
             </Form.Item>
 
@@ -165,11 +164,11 @@ function Registration() {
               name='address'
               rules={[{
                 required: true,
-                message: 'Please input your Address!'
+                message: 'Vui lòng nhập địa chỉ.'
               }]}
             >
               <TextArea
-                placeholder='Address'
+                placeholder='Địa chỉ'
                 size='large'
                 allowClear
                 rows={2}
@@ -180,12 +179,12 @@ function Registration() {
               name='password'
               rules={[{
                 required: true,
-                message: 'Please input your Password!'
+                message: 'Vui lòng nhập mật khẩu.'
               }]}
             >
               <Input.Password
                 prefix={<LockOutlined className='site-form-item-icon' />}
-                placeholder='Password'
+                placeholder='Mật khẩu'
                 size='large'
                 allowClear
                 type='tel'
@@ -203,7 +202,7 @@ function Registration() {
                 loading={loading}
                 disabled={loading}
               >
-                Registration
+                Đăng ký
               </Button>
             </Form.Item>
 
@@ -211,7 +210,7 @@ function Registration() {
               className='btn-login-registration'
               href='/auth/login'
             >
-              Or Login Here!
+              Hoặc đăng nhập tại đây
             </Link>
           </Form>
         </div>

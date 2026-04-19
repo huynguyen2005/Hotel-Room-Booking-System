@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright ©2023 • Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -26,61 +26,58 @@ function UserDetails({ id }) {
   const dispatch = useDispatch();
   const user = getSessionUser();
 
-  // fetch user-details API data
   const [loading, error, response] = useFetchData(`/api/v1/get-user/${id}`);
 
-  // function to handle blocked user
   const blockedUser = () => {
     confirm({
-      title: 'BLOCKED USER',
+      title: 'KHÓA NGƯỜI DÙNG',
       icon: <ExclamationCircleFilled />,
-      content: 'Are you sure blocked this user?',
+      content: 'Bạn có chắc muốn khóa người dùng này không?',
       onOk() {
         return new Promise((resolve, reject) => {
           ApiService.put(`/api/v1/blocked-user/${id}`)
             .then((res) => {
               if (res?.result_code === 0) {
-                notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'User blocked successful');
+                notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Khóa người dùng thành công.');
                 dispatch(reFetchData());
                 resolve();
               } else {
-                notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+                notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
                 reject();
               }
             })
             .catch((err) => {
-              notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+              notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
               reject();
             });
-        }).catch(() => notificationWithIcon('error', 'ERROR', 'Oops errors!'));
+        }).catch(() => notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra.'));
       }
     });
   };
 
-  // function to handle unblocked user
   const unblockedUser = () => {
     confirm({
-      title: 'UNBLOCKED USER',
+      title: 'MỞ KHÓA NGƯỜI DÙNG',
       icon: <ExclamationCircleFilled />,
-      content: 'Are you sure unblocked this user?',
+      content: 'Bạn có chắc muốn mở khóa người dùng này không?',
       onOk() {
         return new Promise((resolve, reject) => {
           ApiService.put(`/api/v1/unblocked-user/${id}`)
             .then((res) => {
               if (res?.result_code === 0) {
-                notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'User unblocked successful');
+                notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Mở khóa người dùng thành công.');
                 dispatch(reFetchData());
                 resolve();
               } else {
-                notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+                notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
                 reject();
               }
             })
             .catch((err) => {
-              notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+              notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
               reject();
             });
-        }).catch(() => notificationWithIcon('error', 'ERROR', 'Oops errors!'));
+        }).catch(() => notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra.'));
       }
     });
   };
@@ -89,25 +86,25 @@ function UserDetails({ id }) {
     <Skeleton loading={loading} paragraph={{ rows: 10 }} active avatar>
       {error ? (
         <Result
-          title='Failed to fetch'
+          title='Không thể tải dữ liệu'
           subTitle={error}
           status='error'
         />
       ) : (
         <Descriptions
-          title='User Information'
+          title='Thông tin người dùng'
           bordered
           extra={user?.id !== id && (response?.data?.status === 'blocked' ? (
             <Button onClick={unblockedUser} type='default' danger>
-              Unblocked User
+              Mở khóa người dùng
             </Button>
           ) : (
             <Button onClick={blockedUser} type='default' danger>
-              Blocked User
+              Khóa người dùng
             </Button>
           ))}
         >
-          <Descriptions.Item label='Avatar' span={3}>
+          <Descriptions.Item label='Ảnh đại diện' span={3}>
             {response?.data?.avatar ? (
               <Image
                 className='!w-[100px] !h-[100px]'
@@ -115,23 +112,23 @@ function UserDetails({ id }) {
                 crossOrigin='anonymous'
                 alt='user-image'
               />
-            ) : 'N/A'}
+            ) : 'Không có'}
           </Descriptions.Item>
 
-          <Descriptions.Item label='Full Name'>
+          <Descriptions.Item label='Họ và tên'>
             {response?.data?.fullName}
           </Descriptions.Item>
-          <Descriptions.Item label='User Name' span={2}>
+          <Descriptions.Item label='Tên đăng nhập' span={2}>
             {response?.data?.userName}
           </Descriptions.Item>
           <Descriptions.Item label='Email'>
             {response?.data?.email}
           </Descriptions.Item>
-          <Descriptions.Item label='Phone' span={2}>
+          <Descriptions.Item label='Số điện thoại' span={2}>
             {response?.data?.phone}
           </Descriptions.Item>
 
-          <Descriptions.Item label='Role'>
+          <Descriptions.Item label='Vai trò'>
             <Tag
               className='w-[60px] text-center uppercase'
               color={response?.data?.role === 'admin' ? 'magenta' : 'purple'}
@@ -139,7 +136,7 @@ function UserDetails({ id }) {
               {response?.data?.role}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label='Status' span={2}>
+          <Descriptions.Item label='Trạng thái' span={2}>
             <Tag
               className='w-[70px] text-center uppercase'
               color={userStatusAsResponse(response?.data?.status).color}
@@ -147,26 +144,26 @@ function UserDetails({ id }) {
               {userStatusAsResponse(response?.data?.status).level}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label='Verified'>
+          <Descriptions.Item label='Đã xác minh'>
             <Tag
               className='w-[50px] text-center uppercase'
               color={response?.data?.verified ? 'success' : 'error'}
             >
-              {response?.data?.verified ? 'Yes' : 'No'}
+              {response?.data?.verified ? 'Có' : 'Không'}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label='Date Of Birth' span={2}>
-            {response?.data?.dob?.split('T')[0] || 'N/A'}
+          <Descriptions.Item label='Ngày sinh' span={2}>
+            {response?.data?.dob?.split('T')[0] || 'Không có'}
           </Descriptions.Item>
 
-          <Descriptions.Item label='User Last Update Date'>
+          <Descriptions.Item label='Ngày cập nhật gần nhất'>
             {response?.data?.updatedAt?.split('T')[0]}
           </Descriptions.Item>
-          <Descriptions.Item label='User Registration Date' span={2}>
+          <Descriptions.Item label='Ngày đăng ký tài khoản' span={2}>
             {response?.data?.createdAt?.split('T')[0]}
           </Descriptions.Item>
 
-          <Descriptions.Item label='Address' span={3}>
+          <Descriptions.Item label='Địa chỉ' span={3}>
             {response?.data?.address}
           </Descriptions.Item>
         </Descriptions>

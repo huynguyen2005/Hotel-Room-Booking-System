@@ -2,12 +2,14 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
 
-import { HistoryOutlined, LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  HistoryOutlined, LockOutlined, LogoutOutlined, UserOutlined
+} from '@ant-design/icons';
 import {
   Avatar, Button, Popover, Typography
 } from 'antd';
@@ -28,7 +30,6 @@ function UserPopover() {
   const user = getSessionUser();
   const router = useRouter();
 
-  // function to handle user logout
   const userLogout = async () => {
     setLoading(true);
     try {
@@ -37,12 +38,12 @@ function UserPopover() {
         removeSessionAndLogoutUser();
         setLoading(false);
       } else {
-        notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         removeSessionAndLogoutUser();
         setLoading(false);
       }
     } catch (error) {
-      notificationWithIcon('error', 'ERROR', error?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+      notificationWithIcon('error', 'LỖI', error?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       removeSessionAndLogoutUser();
       setLoading(false);
     }
@@ -53,11 +54,7 @@ function UserPopover() {
       <Popover
         placement='bottomRight'
         trigger='hover'
-        title={(
-          <span style={{ fontSize: '18px' }}>
-            {user?.fullName}
-          </span>
-      )}
+        title={(<span style={{ fontSize: '18px' }}>{user?.fullName}</span>)}
         content={(
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
             <Button
@@ -67,7 +64,7 @@ function UserPopover() {
               size='middle'
               type='link'
             >
-              My Profile
+              Hồ sơ cá nhân
             </Button>
             <Button
               style={{ color: '#000', padding: '0px' }}
@@ -76,7 +73,7 @@ function UserPopover() {
               size='middle'
               type='link'
             >
-              Booking History
+              Lịch sử đặt phòng
             </Button>
             <Button
               style={{ color: '#000', padding: '0px' }}
@@ -96,7 +93,7 @@ function UserPopover() {
               loading={loading}
               disabled={loading}
             >
-              Log Out
+              Đăng xuất
             </Button>
           </div>
         )}
@@ -110,7 +107,7 @@ function UserPopover() {
               src={user?.avatar || 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg'}
               alt='avatar-img'
             />
-        )}
+          )}
           size='large'
         />
       </Popover>
@@ -120,7 +117,7 @@ function UserPopover() {
           style={{ position: 'absolute', right: '150px', top: '22px' }}
           level={3}
         >
-          {`Welcome! ${user?.fullName || 'N/A'}`}
+          {`Xin chào, ${user?.fullName || 'N/A'}`}
         </Title>
       )}
 

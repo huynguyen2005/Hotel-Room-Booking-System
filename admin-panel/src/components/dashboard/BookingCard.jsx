@@ -28,8 +28,9 @@ function BookingCard({ loading, data }) {
   const approvedBookings = data?.approved_bookings || 0;
   const pendingBookings = data?.pending_bookings || 0;
   const rejectedBookings = data?.rejected_bookings || 0;
+  const noShowBookings = data?.no_show_bookings || 0;
   const cancelBookings = data?.cancel_bookings || 0;
-  const inReviewBookings = data?.in_reviews_bookings || 0;
+  const awaitingReviewBookings = data?.in_reviews_bookings || 0;
   const completedBookings = data?.completed_bookings || 0;
   const approvalPercent = totalBookings ? Math.round((approvedBookings / totalBookings) * 100) : 0;
   const completionPercent = totalBookings ? Math.round((completedBookings / totalBookings) * 100) : 0;
@@ -43,18 +44,18 @@ function BookingCard({ loading, data }) {
     >
       <div className='dashboard-card-head'>
         <div>
-          <p className='dashboard-card-kicker'>Booking Pipeline</p>
-          <h3 className='dashboard-card-title'>Reservations</h3>
+          <p className='dashboard-card-kicker'>Luồng đặt phòng</p>
+          <h3 className='dashboard-card-title'>Đơn đặt phòng</h3>
         </div>
 
-        <Tag color='green' icon={<FileDoneOutlined />}>Orders</Tag>
+        <Tag color='green' icon={<FileDoneOutlined />}>Đơn hàng</Tag>
       </div>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={10}>
           <div className='dashboard-hero-stat dashboard-hero-stat-bookings'>
             <Statistic
-              title='Total Bookings'
+              title='Tổng số booking'
               formatter={formatter}
               value={totalBookings}
             />
@@ -64,14 +65,14 @@ function BookingCard({ loading, data }) {
                 {' '}
                 {approvedBookings}
                 {' '}
-                approved
+                đã duyệt
               </span>
               <span>
                 <ClockCircleOutlined />
                 {' '}
                 {pendingBookings}
                 {' '}
-                pending
+                chờ duyệt
               </span>
             </div>
           </div>
@@ -82,7 +83,7 @@ function BookingCard({ loading, data }) {
             <Col xs={24} md={12}>
               <div className='dashboard-mini-stat'>
                 <Statistic
-                  title='Approved'
+                  title='Đã duyệt'
                   formatter={formatter}
                   prefix={<CheckCircleOutlined />}
                   value={approvedBookings}
@@ -93,7 +94,7 @@ function BookingCard({ loading, data }) {
             <Col xs={24} md={12}>
               <div className='dashboard-mini-stat'>
                 <Statistic
-                  title='Pending'
+                  title='Chờ duyệt'
                   formatter={formatter}
                   prefix={<ClockCircleOutlined />}
                   value={pendingBookings}
@@ -104,10 +105,10 @@ function BookingCard({ loading, data }) {
             <Col xs={24} md={12}>
               <div className='dashboard-mini-stat'>
                 <Statistic
-                  title='In Reviews'
+                  title='Chờ đánh giá'
                   formatter={formatter}
                   prefix={<FieldTimeOutlined />}
-                  value={inReviewBookings}
+                  value={awaitingReviewBookings}
                 />
               </div>
             </Col>
@@ -115,7 +116,7 @@ function BookingCard({ loading, data }) {
             <Col xs={24} md={12}>
               <div className='dashboard-mini-stat'>
                 <Statistic
-                  title='Completed'
+                  title='Hoàn tất'
                   formatter={formatter}
                   prefix={<FileDoneOutlined />}
                   value={completedBookings}
@@ -128,7 +129,7 @@ function BookingCard({ loading, data }) {
         <Col span={24}>
           <div className='dashboard-progress-block'>
             <div className='dashboard-progress-row'>
-              <span>Approval Rate</span>
+              <span>Tỷ lệ duyệt</span>
               <strong>
                 {approvalPercent}
                 %
@@ -137,7 +138,7 @@ function BookingCard({ loading, data }) {
             <Progress percent={approvalPercent} strokeColor='#52c41a' showInfo={false} />
 
             <div className='dashboard-progress-row'>
-              <span>Completion Rate</span>
+              <span>Tỷ lệ hoàn tất</span>
               <strong>
                 {completionPercent}
                 %
@@ -150,28 +151,32 @@ function BookingCard({ loading, data }) {
         <Col span={24}>
           <div className='dashboard-breakdown-grid dashboard-breakdown-grid-booking'>
             <div className='dashboard-breakdown-item'>
-              <span>Cancelled</span>
+              <span>Đã hủy</span>
               <strong>{formatter(cancelBookings)}</strong>
             </div>
             <div className='dashboard-breakdown-item'>
-              <span>Rejected</span>
+              <span>Đã từ chối</span>
               <strong>{formatter(rejectedBookings)}</strong>
             </div>
             <div className='dashboard-breakdown-item'>
-              <span>Review Queue</span>
-              <strong>{formatter(inReviewBookings)}</strong>
+              <span>Không đến</span>
+              <strong>{formatter(noShowBookings)}</strong>
             </div>
             <div className='dashboard-breakdown-item'>
-              <span>Done</span>
+              <span>Chờ đánh giá</span>
+              <strong>{formatter(awaitingReviewBookings)}</strong>
+            </div>
+            <div className='dashboard-breakdown-item'>
+              <span>Hoàn tất</span>
               <strong>{formatter(completedBookings)}</strong>
             </div>
             <div className='dashboard-breakdown-item'>
-              <span>Open Queue</span>
-              <strong>{formatter(pendingBookings + approvedBookings + inReviewBookings)}</strong>
+              <span>Đang xử lý</span>
+              <strong>{formatter(pendingBookings + approvedBookings + awaitingReviewBookings)}</strong>
             </div>
             <div className='dashboard-breakdown-item'>
-              <span>Dropped</span>
-              <strong>{formatter(cancelBookings + rejectedBookings)}</strong>
+              <span>Không thành công</span>
+              <strong>{formatter(cancelBookings + rejectedBookings + noShowBookings)}</strong>
             </div>
           </div>
         </Col>

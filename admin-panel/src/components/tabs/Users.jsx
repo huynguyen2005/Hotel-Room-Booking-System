@@ -22,7 +22,7 @@ function Users() {
       ...items,
       {
         key: newActiveKey,
-        label: 'User Details',
+        label: 'Chi tiết người dùng',
         children: <UserDetails id={id} />
       }
     ]);
@@ -36,7 +36,7 @@ function Users() {
       ...items,
       {
         key: newActiveKey,
-        label: 'Create User',
+        label: 'Tạo người dùng',
         children: <CreateUser />
       }
     ]);
@@ -46,7 +46,7 @@ function Users() {
   // default tab pane and component
   const defaultPanes = new Array(1).fill(null).map((_, index) => ({
     key: String(index + 1),
-    label: 'Users List',
+    label: 'Danh sách người dùng',
     children: <UsersList add={add} />,
     closable: false
   }));
@@ -86,7 +86,7 @@ function Users() {
           type='primary'
           size='large'
         >
-          Create User
+          Tạo người dùng
         </Button>
       )}
       activeKey={activeKey}

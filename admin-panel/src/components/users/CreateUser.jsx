@@ -44,16 +44,16 @@ function CreateUser() {
       .then((response) => {
         setLoading(false);
         if (response?.result_code === 0) {
-          notificationWithIcon('success', 'SUCCESS', response?.result?.message || 'New user registration successful');
+          notificationWithIcon('success', 'THÀNH CÔNG', response?.result?.message || 'Tạo người dùng mới thành công.');
           form.resetFields();
           dispatch(reFetchData());
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       })
       .catch((err) => {
         setLoading(false);
-        notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       });
   };
 
@@ -68,16 +68,16 @@ function CreateUser() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Username'
+          label='Tên đăng nhập'
           name='userName'
           rules={[{
             required: true,
-            message: 'Please input your Username!'
+            message: 'Vui lòng nhập tên đăng nhập.'
           }]}
         >
           <Input
             prefix={<UserOutlined className='site-form-item-icon' />}
-            placeholder='Username'
+            placeholder='Nhập tên đăng nhập'
             size='large'
             type='text'
             allowClear
@@ -86,16 +86,16 @@ function CreateUser() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Full Name'
+          label='Họ và tên'
           name='fullName'
           rules={[{
             required: true,
-            message: 'Please input your Full Name!'
+            message: 'Vui lòng nhập họ và tên.'
           }]}
         >
           <Input
             prefix={<UserOutlined className='site-form-item-icon' />}
-            placeholder='Full Name'
+            placeholder='Nhập họ và tên'
             size='large'
             type='text'
             allowClear
@@ -111,12 +111,12 @@ function CreateUser() {
           rules={[{
             type: 'email',
             required: true,
-            message: 'Please input your Email!'
+            message: 'Vui lòng nhập email.'
           }]}
         >
           <Input
             prefix={<MailOutlined className='site-form-item-icon' />}
-            placeholder='Email'
+            placeholder='Nhập email'
             size='large'
             type='email'
             allowClear
@@ -125,16 +125,16 @@ function CreateUser() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Phone'
+          label='Số điện thoại'
           name='phone'
           rules={[{
             required: true,
-            message: 'Please input your Phone!'
+            message: 'Vui lòng nhập số điện thoại.'
           }]}
         >
           <Input
             prefix={<PhoneOutlined className='site-form-item-icon' />}
-            placeholder='Phone'
+            placeholder='Nhập số điện thoại'
             size='large'
             type='text'
             allowClear
@@ -145,18 +145,18 @@ function CreateUser() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Role'
+          label='Vai trò'
           name='role'
           rules={[{
             required: true,
-            message: 'Please input your Role!'
+            message: 'Vui lòng chọn vai trò.'
           }]}
         >
           <Select
-            placeholder='-- select user role --'
+            placeholder='-- chọn vai trò --'
             optionFilterProp='children'
             options={[
-              { value: 'user', label: 'User' },
+              { value: 'user', label: 'Người dùng' },
               { value: 'admin', label: 'Admin' }
             ]}
             size='large'
@@ -166,19 +166,19 @@ function CreateUser() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Gender'
+          label='Giới tính'
           name='gender'
           rules={[{
             required: true,
-            message: 'Please input your Gender!'
+            message: 'Vui lòng chọn giới tính.'
           }]}
         >
           <Select
-            placeholder='-- select user gender --'
+            placeholder='-- chọn giới tính --'
             optionFilterProp='children'
             options={[
-              { value: 'male', label: 'Male' },
-              { value: 'female', label: 'Female' }
+              { value: 'male', label: 'Nam' },
+              { value: 'female', label: 'Nữ' }
             ]}
             size='large'
             allowClear
@@ -189,16 +189,16 @@ function CreateUser() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Date Of Birth'
+          label='Ngày sinh'
           name='dob'
           rules={[{
             required: true,
-            message: 'Please input your Date Of Birth!'
+            message: 'Vui lòng chọn ngày sinh.'
           }]}
         >
           <DatePicker
             className='w-full'
-            placeholder='Pick your Date Of Birth'
+            placeholder='Chọn ngày sinh'
             size='large'
             allowClear
           />
@@ -206,16 +206,16 @@ function CreateUser() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Address'
+          label='Địa chỉ'
           name='address'
           rules={[{
             required: true,
-            message: 'Please input your Address!'
+            message: 'Vui lòng nhập địa chỉ.'
           }]}
         >
           <Input
             prefix={<EnvironmentOutlined className='site-form-item-icon' />}
-            placeholder='Address'
+            placeholder='Nhập địa chỉ'
             size='large'
             type='text'
             allowClear
@@ -226,16 +226,16 @@ function CreateUser() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-[49.5%]'
-          label='Password'
+          label='Mật khẩu'
           name='password'
           rules={[{
             required: true,
-            message: 'Please input your Password!'
+            message: 'Vui lòng nhập mật khẩu.'
           }]}
         >
           <Input.Password
             prefix={<LockOutlined className='site-form-item-icon' />}
-            placeholder='Password'
+            placeholder='Nhập mật khẩu'
             size='large'
             type='text'
             allowClear
@@ -252,7 +252,7 @@ function CreateUser() {
           loading={loading}
           disabled={loading}
         >
-          Register User
+          Tạo người dùng
         </Button>
       </Form.Item>
     </Form>

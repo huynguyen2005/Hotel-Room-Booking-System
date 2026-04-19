@@ -22,11 +22,23 @@ function MainLayout({ children, title }) {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <Navbar />
-      <main style={{ overflow: 'auto' }}>
-        {children}
-      </main>
-      <Footers />
+      <div style={{
+        minHeight: 'calc(100vh - 66px)',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+      >
+        <Navbar />
+        <main style={{
+          overflow: 'auto',
+          flex: 1,
+          paddingBottom: '20px'
+        }}
+        >
+          {children}
+        </main>
+        <Footers />
+      </div>
     </>
   );
 }

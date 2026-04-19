@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -19,18 +19,16 @@ import ApiService from '../utils/apiService';
 import { setSessionUserAndToken } from '../utils/authentication';
 
 function Login() {
-  window.document.title = 'Beach Resort — Login';
+  window.document.title = 'Beach Resort - Đăng nhập';
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState('');
 
-  // timeout callback
   const [timeout] = useTimeout(() => {
     setErrMsg('');
   }, 2000);
 
   timeout();
 
-  // function to handle user login
   const onFinish = async (values) => {
     try {
       setLoading(true);
@@ -41,12 +39,12 @@ function Login() {
         window.location.href = '/main/dashboard';
         setLoading(false);
       } else {
-        setErrMsg('Sorry! Something went wrong. App server error');
+        setErrMsg('Đã có lỗi xảy ra từ máy chủ.');
         setLoading(false);
       }
       setLoading(false);
     } catch (error) {
-      setErrMsg(error?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+      setErrMsg(error?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       setLoading(false);
     }
   };
@@ -62,7 +60,7 @@ function Login() {
           />
         </Link>
 
-        <Divider className='!mb-10'>LOGIN AUTHORIZED USER ONLY</Divider>
+        <Divider className='!mb-10'>CHỈ NGƯỜI DÙNG ĐƯỢC CẤP QUYỀN MỚI ĐĂNG NHẬP</Divider>
         {errMsg && <Alert message={errMsg} type='error' className='!text-center' />}
 
         <Form
@@ -77,12 +75,12 @@ function Login() {
             rules={[{
               type: 'email',
               required: true,
-              message: 'Please input your Email!'
+              message: 'Vui lòng nhập email.'
             }]}
           >
             <Input
               prefix={<MailOutlined className='site-form-item-icon mr-2' />}
-              placeholder='Enter here your Email'
+              placeholder='Nhập email'
             />
           </Form.Item>
 
@@ -90,17 +88,16 @@ function Login() {
             name='password'
             rules={[{
               required: true,
-              message: 'Please input your Password!'
+              message: 'Vui lòng nhập mật khẩu.'
             }]}
           >
             <Input.Password
               prefix={<LockOutlined className='site-form-item-icon mr-2' />}
-              placeholder='Enter here your Password'
+              placeholder='Nhập mật khẩu'
               type='password'
             />
           </Form.Item>
 
-          {/* FORM SUBMIT BUTTON */}
           <Form.Item>
             <Button
               className='login-form-button mt-5'
@@ -110,7 +107,7 @@ function Login() {
               type='primary'
               block
             >
-              {loading ? <LoadingOutlined /> : 'Login'}
+              {loading ? <LoadingOutlined /> : 'Đăng nhập'}
             </Button>
           </Form.Item>
         </Form>

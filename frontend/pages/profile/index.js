@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -46,7 +46,7 @@ function Profile() {
 
   return (
     <PrivateRoute>
-      <MainLayout title='Beach Resort ― My Profile'>
+      <MainLayout title='Beach Resort - Hồ sơ cá nhân'>
         <div className='profile-container'>
           <Tabs
             tabPosition='left'
@@ -61,7 +61,7 @@ function Profile() {
                   <span>
                     <UserOutlined />
                     {' '}
-                    My Profile
+                    Hồ sơ cá nhân
                   </span>
                 ),
                 children: <MyProfile />
@@ -72,7 +72,7 @@ function Profile() {
                   <span>
                     <HistoryOutlined />
                     {' '}
-                    Booking History
+                    Lịch sử đặt phòng
                   </span>
                 ),
                 children: <BookingHistory />

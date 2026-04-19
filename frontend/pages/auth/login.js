@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -32,18 +32,18 @@ function Login() {
           form.resetFields();
           window.location.href = '/profile?tab=my-profile';
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       })
       .catch((err) => {
         setLoading(false);
-        notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       });
   };
 
   return (
     <PublicRoute>
-      <MainLayout title='Beach Resort ― Login'>
+      <MainLayout title='Beach Resort - Đăng nhập'>
         <div style={{ width: '400px', height: 'calc(100vh - 205px)', margin: '0 auto' }}>
           <Form
             form={form}
@@ -57,7 +57,7 @@ function Login() {
               name='email'
               rules={[{
                 required: true,
-                message: 'Please input your Email!'
+                message: 'Vui lòng nhập email.'
               }]}
             >
               <Input
@@ -71,32 +71,34 @@ function Login() {
               name='password'
               rules={[{
                 required: true,
-                message: 'Please input your Password!'
+                message: 'Vui lòng nhập mật khẩu.'
               }]}
             >
               <Input.Password
                 prefix={<LockOutlined className='site-form-item-icon' />}
-                placeholder='Password'
+                placeholder='Mật khẩu'
                 type='password'
                 size='large'
               />
             </Form.Item>
 
             <Form.Item>
-              <Form.Item
-                valuePropName='checked'
-                name='remember'
-                noStyle
-              >
-                <Checkbox>Remember me</Checkbox>
-              </Form.Item>
+              <div className='login-form-actions'>
+                <Form.Item
+                  valuePropName='checked'
+                  name='remember'
+                  noStyle
+                >
+                  <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+                </Form.Item>
 
-              <Link
-                className='btn-forgot-password'
-                href='/auth/forgot-password'
-              >
-                Forgot Password
-              </Link>
+                <Link
+                  className='btn-forgot-password'
+                  href='/auth/forgot-password'
+                >
+                  Quên mật khẩu
+                </Link>
+              </div>
             </Form.Item>
 
             <Form.Item>
@@ -109,7 +111,7 @@ function Login() {
                 loading={loading}
                 disabled={loading}
               >
-                Log In
+                Đăng nhập
               </Button>
             </Form.Item>
 
@@ -117,7 +119,7 @@ function Login() {
               className='btn-login-registration'
               href='/auth/registration'
             >
-              Or Registration Here!
+              Hoặc đăng ký tại đây
             </Link>
           </Form>
         </div>

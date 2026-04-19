@@ -2,39 +2,32 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright ©2023 • Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
 
 import { Button, Modal, Select } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ApiService from '../../utils/apiService';
 import notificationWithIcon from '../../utils/notification';
 
 function RoomStatusUpdateModal({ statusUpdateModal, setStatusUpdateModal, setFetchAgain }) {
-  const [roomStatus, setRoomStatus] = useState([
-    { value: 'approved', label: 'Approved', disabled: false },
-    { value: 'rejected', label: 'Rejected', disabled: false },
-    { value: 'in-reviews', label: 'In Reviews', disabled: true }
+  const [bookingStatus] = useState([
+    { value: 'approved', label: 'Đã duyệt', disabled: false },
+    { value: 'rejected', label: 'Từ chối', disabled: false }
   ]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
 
-  useEffect(() => {
-    if (statusUpdateModal?.status === 'approved') {
-      setRoomStatus([
-        { value: 'approved', label: 'Approved', disabled: true },
-        { value: 'rejected', label: 'Rejected', disabled: true },
-        { value: 'in-reviews', label: 'In Reviews', disabled: false }
-      ]);
-    }
-  }, [statusUpdateModal]);
+  const handleClose = () => {
+    setStatus(null);
+    setStatusUpdateModal((prevState) => ({ ...prevState, open: false, status: null }));
+  };
 
-  // function to handle update room status
   const handleUpdateStatus = () => {
     if (!status) {
-      notificationWithIcon('error', 'ERROR', 'Please select an status first to update room status');
+      notificationWithIcon('error', 'LỖI', 'Vui lòng chọn trạng thái trước.');
     } else {
       setLoading(true);
       ApiService.put(
@@ -44,38 +37,32 @@ function RoomStatusUpdateModal({ statusUpdateModal, setStatusUpdateModal, setFet
         .then((res) => {
           setLoading(false);
           if (res?.result_code === 0) {
-            notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'Room status update successful');
-            setStatusUpdateModal((prevState) => ({ ...prevState, open: false, status: null }));
+            notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Cập nhật trạng thái đơn đặt phòng thành công.');
+            handleClose();
             setFetchAgain((prevState) => !prevState);
           } else {
-            notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+            notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
           }
         })
         .catch((err) => {
           setLoading(false);
-          notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
         });
     }
   };
 
   return (
     <Modal
-      title='Update Room Status:'
+      title='Cập nhật trạng thái đơn đặt phòng'
       open={statusUpdateModal?.open}
-      onOk={() => setStatusUpdateModal(
-        (prevState) => ({ ...prevState, open: false, status: null })
-      )}
-      onCancel={() => setStatusUpdateModal(
-        (prevState) => ({ ...prevState, open: false, status: null })
-      )}
+      onOk={handleClose}
+      onCancel={handleClose}
       footer={[
         <Button
-          onClick={() => setStatusUpdateModal(
-            (prevState) => ({ ...prevState, open: false, status: null })
-          )}
+          onClick={handleClose}
           key='back'
         >
-          Cancel
+          Hủy
         </Button>,
         <Button
           onClick={handleUpdateStatus}
@@ -84,15 +71,15 @@ function RoomStatusUpdateModal({ statusUpdateModal, setStatusUpdateModal, setFet
           disabled={loading}
           loading={loading}
         >
-          Ok
+          Đồng ý
         </Button>
       ]}
     >
       <Select
         className='w-full my-5'
-        placeholder='-- select room status --'
+        placeholder='-- chọn trạng thái đơn đặt phòng --'
         optionFilterProp='children'
-        options={roomStatus}
+        options={bookingStatus}
         size='large'
         allowClear
         value={status}

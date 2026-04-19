@@ -551,20 +551,22 @@ h6 {
 
 /* start of footer style */
 .footer {
-  padding: 20px 0px;
+  padding: 10px 0px;
   text-align: center;
   background-color: var(--mainBlack);
 }
 
 .footer h2 {
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 400;
+  margin-bottom: 4px;
   color: var(--mainWhite);
 }
 
 .footer p {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--mainWhite);
+  margin: 0;
 }
 
 .footer p a {
@@ -583,22 +585,30 @@ h6 {
 
 @media screen and (max-width: 776px) {
   .footer h2 {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .footer p {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 /* end of footer style */
 
 /* start of auth style */
 
+.login-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .btn-forgot-password {
   color: var(--mainBlack);
   transition: var(--mainTransition);
-  margin-left: 170px;
   font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
 }
 .btn-forgot-password:hover {
   color: var(--primaryColor);
@@ -622,7 +632,7 @@ h6 {
 
 .profile-container {
   width: 100%;
-  height: calc(100vh - 205px);
+  min-height: calc(100vh - 205px);
   padding-top: 20px;
 }
 

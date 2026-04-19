@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright ©2023 • Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -28,32 +28,28 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  // fetch user profile API data
   const [fetchLoading, fetchError, fetchResponse] = useFetchData('/api/v1/get-user');
 
-  // set form data from API data
   useEffect(() => {
     if (fetchResponse) {
       form.setFieldsValue({
         fullName: fetchResponse?.data?.fullName || undefined,
         phone: fetchResponse?.data?.phone || undefined,
         gender: fetchResponse?.data?.gender || undefined,
-        dob: dayjs(fetchResponse?.data?.dob) || undefined,
+        dob: fetchResponse?.data?.dob ? dayjs(fetchResponse?.data?.dob) : undefined,
         address: fetchResponse?.data?.address || undefined
       });
     }
   }, [fetchResponse, form]);
 
-  // function to handle edit user profile
   const onFinish = (values) => {
     setLoading(true);
     ApiService.put('/api/v1/update-user', values)
       .then((response) => {
         setLoading(false);
         if (response?.result_code === 0) {
-          notificationWithIcon('success', 'SUCCESS', response?.result?.message || 'Your profile information updated successful');
+          notificationWithIcon('success', 'THÀNH CÔNG', response?.result?.message || 'Cập nhật thông tin hồ sơ thành công.');
 
-          // update local storage session user data
           setSessionUserKeyAgainstValue('fullName', response?.result?.data?.fullName);
           setSessionUserKeyAgainstValue('phone', response?.result?.data?.phone);
           setSessionUserKeyAgainstValue('gender', response?.result?.data?.gender);
@@ -64,18 +60,18 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
           dispatch(reFetchData());
           setEditProfileModal(false);
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       })
       .catch((err) => {
         setLoading(false);
-        notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       });
   };
 
   return (
     <Modal
-      title='Edit Profile Information'
+      title='Chỉnh sửa thông tin hồ sơ'
       open={editProfileModal}
       onOk={() => setEditProfileModal(false)}
       onCancel={() => setEditProfileModal(false)}
@@ -84,7 +80,7 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
     >
       {fetchLoading ? (<Loading />) : fetchError ? (
         <Result
-          title='Failed to fetch'
+          title='Không thể tải dữ liệu'
           subTitle={fetchError}
           status='error'
         />
@@ -97,16 +93,16 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
           layout='vertical'
         >
           <Form.Item
-            label='Full Name'
+            label='Họ và tên'
             name='fullName'
             rules={[{
               required: true,
-              message: 'Please input your Full Name!'
+              message: 'Vui lòng nhập họ và tên.'
             }]}
           >
             <Input
               prefix={<UserOutlined className='site-form-item-icon' />}
-              placeholder='Full Name'
+              placeholder='Nhập họ và tên'
               size='large'
               type='text'
               allowClear
@@ -114,16 +110,16 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
           </Form.Item>
 
           <Form.Item
-            label='Phone'
+            label='Số điện thoại'
             name='phone'
             rules={[{
               required: true,
-              message: 'Please input your Phone!'
+              message: 'Vui lòng nhập số điện thoại.'
             }]}
           >
             <Input
               prefix={<PhoneOutlined className='site-form-item-icon' />}
-              placeholder='Phone'
+              placeholder='Nhập số điện thoại'
               size='large'
               type='text'
               allowClear
@@ -131,19 +127,19 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
           </Form.Item>
 
           <Form.Item
-            label='Gender'
+            label='Giới tính'
             name='gender'
             rules={[{
               required: true,
-              message: 'Please input your Gender!'
+              message: 'Vui lòng chọn giới tính.'
             }]}
           >
             <Select
-              placeholder='-- select user gender --'
+              placeholder='-- chọn giới tính --'
               optionFilterProp='children'
               options={[
-                { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' }
+                { value: 'male', label: 'Nam' },
+                { value: 'female', label: 'Nữ' }
               ]}
               size='large'
               allowClear
@@ -152,16 +148,16 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
 
           <Form.Item
             className='w-full md:w-1/2'
-            label='Date Of Birth'
+            label='Ngày sinh'
             name='dob'
             rules={[{
               required: true,
-              message: 'Please input your Date Of Birth!'
+              message: 'Vui lòng chọn ngày sinh.'
             }]}
           >
             <DatePicker
               style={{ width: '100%' }}
-              placeholder='Pick your Date Of Birth'
+              placeholder='Chọn ngày sinh'
               format='YYYY-MM-DD'
               size='large'
               allowClear
@@ -170,16 +166,16 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
 
           <Form.Item
             className='w-full'
-            label='Address'
+            label='Địa chỉ'
             name='address'
             rules={[{
               required: true,
-              message: 'Please input your Address!'
+              message: 'Vui lòng nhập địa chỉ.'
             }]}
           >
             <Input
               prefix={<EnvironmentOutlined className='site-form-item-icon' />}
-              placeholder='Address'
+              placeholder='Nhập địa chỉ'
               size='large'
               type='text'
               allowClear
@@ -195,7 +191,7 @@ function ProfileEditModal({ editProfileModal, setEditProfileModal }) {
               loading={loading}
               disabled={loading}
             >
-              Update Info
+              Cập nhật thông tin
             </Button>
           </Form.Item>
         </Form>

@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -13,14 +13,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function Home() {
-  window.document.title = 'Beach Resort — Home';
+  window.document.title = 'Beach Resort - Trang chủ';
 
   return (
     <div className='h-screen flex flex-col items-center justify-center'>
       <Result
         title={(
           <h2 className='text-lg font-text-font font-medium md:text-3xl'>
-            Welcome to Beach Resort Admin Panel!
+            Chào mừng đến với trang quản trị Beach Resort!
           </h2>
         )}
         icon={<SmileOutlined />}
@@ -31,7 +31,7 @@ function Home() {
               shape='round'
               size='large'
             >
-              Go to Dashboard
+              Vào bảng điều khiển
             </Button>
           </Link>
         )}

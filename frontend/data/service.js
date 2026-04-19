@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -14,23 +14,23 @@ import {
 const services = [
   {
     icon: <FaCocktail />,
-    title: 'free cocktails',
-    info: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores est eaque error provident unde eligendi.'
+    title: 'cocktail miễn phí',
+    info: 'Khách lưu trú được phục vụ đồ uống miễn phí trong không gian nghỉ dưỡng thư giãn và tiện nghi.'
   },
   {
     icon: <FaHiking />,
-    title: 'endless hiking',
-    info: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores est eaque error provident unde eligendi.'
+    title: 'trải nghiệm dã ngoại',
+    info: 'Khu nghỉ dưỡng hỗ trợ các hoạt động khám phá ngoài trời phù hợp cho gia đình và nhóm bạn.'
   },
   {
     icon: <FaShuttleVan />,
-    title: 'free shuttle',
-    info: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores est eaque error provident unde eligendi.'
+    title: 'xe đưa đón miễn phí',
+    info: 'Dịch vụ xe đưa đón giúp việc di chuyển của khách thuận tiện hơn trong suốt thời gian lưu trú.'
   },
   {
     icon: <FaBeer />,
-    title: 'storages beer',
-    info: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores est eaque error provident unde eligendi.'
+    title: 'đồ uống đa dạng',
+    info: 'Thực đơn đồ uống phong phú được phục vụ linh hoạt để đáp ứng nhu cầu nghỉ dưỡng của khách.'
   }
 ];
 

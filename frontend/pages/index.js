@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -22,30 +22,29 @@ const { publicRuntimeConfig } = getConfig();
 
 function Home(props) {
   return (
-    <MainLayout title='Beach Resort ― Home'>
+    <MainLayout title='Beach Resort - Trang chủ'>
       <Hero>
         <Banner
-          title='luxurious rooms'
-          subtitle='deluxe rooms starting at $299'
+          title='phòng nghỉ sang trọng'
+          subtitle='phòng cao cấp chỉ từ 299 đô mỗi đêm'
         >
           <Link href='/rooms' className='btn-primary'>
-            our rooms
+            xem phòng
           </Link>
         </Banner>
       </Hero>
       <Services />
 
-      {/* featured rooms */}
       <Skeleton loading={!props?.featuredRooms && !props?.error} paragraph={{ rows: 5 }} active>
         {props?.featuredRooms?.data?.rows?.length === 0 ? (
           <Empty
             className='mt-10'
-            description={(<span>Sorry! Any data was not found.</span>)}
+            description={(<span>Không tìm thấy dữ liệu.</span>)}
           />
         ) : props?.error ? (
           <Result
-            title='Failed to fetch'
-            subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'}
+            title='Tải dữ liệu thất bại'
+            subTitle={props?.error?.message || 'Đã có lỗi xảy ra từ máy chủ.'}
             status='error'
           />
         ) : (
@@ -60,7 +59,6 @@ function Home(props) {
 
 export async function getServerSideProps() {
   try {
-    // Fetch data from the server-side API
     const response = await axios.get(`${publicRuntimeConfig.API_BASE_URL}/api/v1/featured-rooms-list`);
     const featuredRooms = response?.data?.result;
 

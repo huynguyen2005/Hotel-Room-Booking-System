@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -24,7 +24,6 @@ function Rooms(props) {
   const [ourRooms, setOurRooms] = useState([]);
   const [ourFilteredRooms, setOurFilteredRooms] = useState([]);
 
-  // if props rooms exists to setOurRooms
   useEffect(() => {
     if (props?.rooms) {
       setOurRooms(props?.rooms?.data?.rows);
@@ -33,26 +32,25 @@ function Rooms(props) {
   }, [props]);
 
   return (
-    <MainLayout title='Beach Resort ― Rooms'>
+    <MainLayout title='Beach Resort - Danh sách phòng'>
       <Hero hero='roomsHero'>
-        <Banner title='our rooms'>
+        <Banner title='danh sách phòng'>
           <Link className='btn-primary' href='/'>
-            return home
+            về trang chủ
           </Link>
         </Banner>
       </Hero>
 
-      {/* featured rooms */}
       <Skeleton loading={!props?.rooms && !props?.error} paragraph={{ rows: 10 }} active>
         {props?.rooms?.data?.rows?.length === 0 ? (
           <Empty
             className='mt-10'
-            description={(<span>Sorry! Any data was not found.</span>)}
+            description={(<span>Không tìm thấy dữ liệu.</span>)}
           />
         ) : props?.error ? (
           <Result
-            title='Failed to fetch'
-            subTitle={props?.error?.message || 'Sorry! Something went wrong. App server error'}
+            title='Tải dữ liệu thất bại'
+            subTitle={props?.error?.message || 'Đã có lỗi xảy ra từ máy chủ.'}
             status='error'
           />
         ) : (
@@ -73,7 +71,6 @@ function Rooms(props) {
 
 export async function getServerSideProps() {
   try {
-    // Fetch data from the server-side API
     const response = await axios.get(`${publicRuntimeConfig.API_BASE_URL}/api/v1/all-rooms-list`);
     const rooms = response?.data?.result;
 

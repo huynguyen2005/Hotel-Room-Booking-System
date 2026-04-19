@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright ©2023 • Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -24,13 +24,58 @@ const bookingSchema = new mongoose.Schema({
   booking_status: {
     type: String,
     default: 'pending',
-    enum: ['pending', 'cancel', 'approved', 'rejected', 'in-reviews', 'completed'],
-    required: [true, 'Room status is required field.']
+    enum: ['pending', 'cancel', 'approved', 'rejected', 'no-show', 'completed'],
+    required: [true, 'Booking status is required field.']
   },
   booking_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
     required: [true, 'User id is required field']
+  },
+  customer_info: {
+    customer_name: {
+      type: String,
+      required: [true, 'Customer name is required']
+    },
+    customer_phone: {
+      type: String,
+      required: [true, 'Customer phone is required']
+    },
+    customer_email: {
+      type: String,
+      required: [true, 'Customer email is required']
+    }
+  },
+  payment_info: {
+    payment_method: {
+      type: String,
+      enum: ['counter'],
+      required: [true, 'Payment method is required']
+    },
+    payment_status: {
+      type: String,
+      enum: ['unpaid', 'paid', 'failed'],
+      default: 'unpaid',
+      required: [true, 'Payment status is required']
+    },
+    transaction_id: {
+      type: String,
+      default: null
+    },
+    paid_at: {
+      type: Date,
+      default: null
+    }
+  },
+  stay_info: {
+    checked_in_at: {
+      type: Date,
+      default: null
+    },
+    checked_out_at: {
+      type: Date,
+      default: null
+    }
   },
   reviews: {
     type: mongoose.Schema.Types.ObjectId,
@@ -46,7 +91,6 @@ const bookingSchema = new mongoose.Schema({
   }
 });
 
-// updatedAt' field before saving or updating a document
 bookingSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();

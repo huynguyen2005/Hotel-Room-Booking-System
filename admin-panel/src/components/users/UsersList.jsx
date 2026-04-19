@@ -40,27 +40,27 @@ function UsersList({ add }) {
   // function to handle delete user
   const handleDeleteUser = (id) => {
     confirm({
-      title: 'DELETE USER',
+      title: 'XÓA NGƯỜI DÙNG',
       icon: <ExclamationCircleFilled />,
-      content: 'Are you sure delete this User permanently?',
+      content: 'Bạn có chắc muốn xóa vĩnh viễn người dùng này không?',
       onOk() {
         return new Promise((resolve, reject) => {
           ApiService.delete(`/api/v1/delete-user/${id}`)
             .then((res) => {
               if (res?.result_code === 0) {
-                notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'Room delete successful');
+                notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Xóa người dùng thành công.');
                 setFetchAgain(!fetchAgain);
                 resolve();
               } else {
-                notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+                notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
                 reject();
               }
             })
             .catch((err) => {
-              notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+              notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
               reject();
             });
-        }).catch(() => notificationWithIcon('error', 'ERROR', 'Oops errors!'));
+        }).catch(() => notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra.'));
       }
     });
   };
@@ -74,7 +74,7 @@ function UsersList({ add }) {
       <div className='w-full flex flex-row flex-wrap items-center justify-center gap-2'>
         {error ? (
           <Result
-            title='Failed to fetch'
+            title='Không thể tải dữ liệu'
             subTitle={error}
             status='error'
           />
@@ -83,7 +83,7 @@ function UsersList({ add }) {
             {response?.data?.rows?.length === 0 ? (
               <Empty
                 className='mt-10'
-                description={(<span>Sorry! Any data was not found.</span>)}
+                description={(<span>Không tìm thấy dữ liệu.</span>)}
               />
             ) : (
               <div className='table-layout'>
@@ -93,31 +93,31 @@ function UsersList({ add }) {
                     <thead className='data-table-head'>
                       <tr className='data-table-head-tr'>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Avatar
+                          Ảnh đại diện
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Full Name
+                          Họ và tên
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Username
+                          Tên đăng nhập
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
                           Email
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Phone
+                          Số điện thoại
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Role
+                          Vai trò
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Status
+                          Trạng thái
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Verified
+                          Đã xác minh
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          User Actions
+                          Thao tác
                         </th>
                       </tr>
                     </thead>
@@ -162,7 +162,7 @@ function UsersList({ add }) {
                               className='w-[50px] text-center uppercase'
                               color={data?.verified ? 'success' : 'error'}
                             >
-                              {data?.verified ? 'Yes' : 'No'}
+                              {data?.verified ? 'Có' : 'Không'}
                             </Tag>
                           </td>
                           <td className='data-table-body-tr-td !px-0 text-center'>
@@ -171,7 +171,7 @@ function UsersList({ add }) {
                               onClick={() => add(data?.id)}
                               type='link'
                             >
-                              View
+                              Xem
                             </Button>
 
                             {user?.id !== data?.id && (
@@ -180,7 +180,7 @@ function UsersList({ add }) {
                                 onClick={() => handleDeleteUser(data?.id)}
                                 type='link'
                               >
-                                Delete
+                                Xóa
                               </Button>
                             )}
                           </td>

@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -14,7 +14,6 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
   const [allowBreakfast, setAllowBreakfast] = useState(false);
   const [allowPets, setAllowPets] = useState(false);
 
-  // function to handle `room_type` filed filtering
   const roomTypeFiltering = (value) => {
     if (value === 'all') {
       setOurFilteredRooms(ourRooms);
@@ -24,13 +23,11 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
     }
   };
 
-  // function to handle `room_price` filed filtering
   const roomPriceFiltering = (value) => {
     const filteredRooms = ourRooms.filter((room) => room.room_price <= parseInt(value, 10));
     setOurFilteredRooms(filteredRooms);
   };
 
-  // function to handle `provide_breakfast` filed filtering
   useEffect(() => {
     if (allowBreakfast) {
       const filteredRooms = ourRooms.filter((room) => room.provide_breakfast === allowBreakfast);
@@ -40,7 +37,6 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
     }
   }, [allowBreakfast]);
 
-  // function to handle `allow_pets` filed filtering
   useEffect(() => {
     if (allowPets) {
       const filteredRooms = ourRooms.filter((room) => room.allow_pets === allowPets);
@@ -52,12 +48,11 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
 
   return (
     <section className='filter-container'>
-      <Title title='search rooms' />
+      <Title title='tìm kiếm phòng' />
 
       <form className='filter-form'>
-        {/* select type start */}
         <div className='form-group'>
-          <label htmlFor='type'>rooms type</label>
+          <label htmlFor='type'>loại phòng</label>
           <select
             className='form-control'
             onChange={(e) => roomTypeFiltering(e.target.value)}
@@ -65,18 +60,16 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
             name='type'
             id='type'
           >
-            <option value='all'>All</option>
-            <option value='single'>Single</option>
-            <option value='couple'>Couple</option>
-            <option value='family'>Family</option>
-            <option value='presidential'>Presidential</option>
+            <option value='all'>Tất cả</option>
+            <option value='single'>Phòng đơn</option>
+            <option value='couple'>Phòng đôi</option>
+            <option value='family'>Phòng gia đình</option>
+            <option value='presidential'>Phòng tổng thống</option>
           </select>
         </div>
-        {/* select type end */}
 
-        {/* room price start */}
         <div className='form-group'>
-          <label htmlFor='price'>started price $ 100</label>
+          <label htmlFor='price'>mức giá từ 100 đô</label>
           <input
             className='form-control'
             type='range'
@@ -88,11 +81,8 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
             onChange={(e) => roomPriceFiltering(e.target.value)}
           />
         </div>
-        {/* room price end */}
 
-        {/* extras start */}
         <div className='form-group'>
-          {/* breakfast checked */}
           <div className='single-extra'>
             <input
               name='breakfast'
@@ -101,10 +91,9 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
               checked={allowBreakfast}
               onChange={() => setAllowBreakfast(!allowBreakfast)}
             />
-            <label htmlFor='breakfast'>breakfast</label>
+            <label htmlFor='breakfast'>bao gồm bữa sáng</label>
           </div>
 
-          {/* pets checked */}
           <div className='single-extra'>
             <input
               type='checkbox'
@@ -113,10 +102,9 @@ export default function RoomFilter({ ourRooms, setOurFilteredRooms }) {
               checked={allowPets}
               onChange={() => setAllowPets(!allowPets)}
             />
-            <label htmlFor='pets'>pets</label>
+            <label htmlFor='pets'>cho phép thú cưng</label>
           </div>
         </div>
-        {/* extras end */}
       </form>
     </section>
   );

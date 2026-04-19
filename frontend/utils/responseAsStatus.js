@@ -63,10 +63,10 @@ export const bookingStatusAsResponse = (status) => {
       level: 'REJECTED'
     };
   }
-  if (status === 'in-reviews') {
+  if (status === 'no-show') {
     return {
-      color: 'purple',
-      level: 'IN REVIEWS'
+      color: 'orange',
+      level: 'NO SHOW'
     };
   }
   if (status === 'completed') {

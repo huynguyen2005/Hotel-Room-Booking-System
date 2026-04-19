@@ -57,7 +57,12 @@ exports.getDashboardData = async (req, res) => {
     const cancelBookings = await Booking.find({ booking_status: 'cancel' });
     const approvedBookings = await Booking.find({ booking_status: 'approved' });
     const rejectedBookings = await Booking.find({ booking_status: 'rejected' });
-    const inReviewsBookings = await Booking.find({ booking_status: 'in-reviews' });
+    const noShowBookings = await Booking.find({ booking_status: 'no-show' });
+    const inReviewsBookings = await Booking.find({
+      booking_status: 'approved',
+      'stay_info.checked_out_at': { $ne: null },
+      reviews: null
+    });
     const completedBookings = await Booking.find({ booking_status: 'completed' });
 
     res.status(200).json(successResponse(
@@ -87,6 +92,7 @@ exports.getDashboardData = async (req, res) => {
           cancel_bookings: cancelBookings?.length || 0,
           approved_bookings: approvedBookings?.length || 0,
           rejected_bookings: rejectedBookings?.length || 0,
+          no_show_bookings: noShowBookings?.length || 0,
           in_reviews_bookings: inReviewsBookings?.length || 0,
           completed_bookings: completedBookings?.length || 0
         }

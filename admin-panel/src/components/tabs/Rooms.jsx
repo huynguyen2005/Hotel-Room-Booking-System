@@ -22,7 +22,7 @@ function Rooms() {
       ...items,
       {
         key: newActiveKey,
-        label: 'Room Details',
+        label: 'Chi tiết phòng',
         children: <RoomDetails id={id} />
       }
     ]);
@@ -36,7 +36,7 @@ function Rooms() {
       ...items,
       {
         key: newActiveKey,
-        label: 'Create Room',
+        label: 'Tạo phòng',
         children: <CreateRoom />
       }
     ]);
@@ -46,7 +46,7 @@ function Rooms() {
   // default tab pane and component
   const defaultPanes = new Array(1).fill(null).map((_, index) => ({
     key: String(index + 1),
-    label: 'Rooms List',
+    label: 'Danh sách phòng',
     children: <RoomsList add={add} />,
     closable: false
   }));
@@ -86,7 +86,7 @@ function Rooms() {
           type='primary'
           size='large'
         >
-          Create Room
+          Tạo phòng
         </Button>
       )}
       activeKey={activeKey}

@@ -42,27 +42,27 @@ function RoomsList({ add }) {
   // function to handle delete
   const handleDeleteRoom = (id) => {
     confirm({
-      title: 'DELETE ROOM',
+      title: 'XÓA PHÒNG',
       icon: <ExclamationCircleFilled />,
-      content: 'Are you sure delete this Room permanently?',
+      content: 'Bạn có chắc muốn xóa vĩnh viễn phòng này không?',
       onOk() {
         return new Promise((resolve, reject) => {
           ApiService.delete(`/api/v1/delete-room/${id}`)
             .then((res) => {
               if (res?.result_code === 0) {
-                notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'Room delete successful');
+                notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Xóa phòng thành công.');
                 setFetchAgain(!fetchAgain);
                 resolve();
               } else {
-                notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+                notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
                 reject();
               }
             })
             .catch((err) => {
-              notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+              notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
               reject();
             });
-        }).catch(() => notificationWithIcon('error', 'ERROR', 'Oops errors!'));
+        }).catch(() => notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra.'));
       }
     });
   };
@@ -76,7 +76,7 @@ function RoomsList({ add }) {
       <div className='w-full flex flex-row flex-wrap items-center justify-center gap-2'>
         {error ? (
           <Result
-            title='Failed to fetch'
+            title='Không thể tải dữ liệu'
             subTitle={error}
             status='error'
           />
@@ -85,7 +85,7 @@ function RoomsList({ add }) {
             {response?.data?.rows?.length === 0 ? (
               <Empty
                 className='mt-10'
-                description={(<span>Sorry! Any data was not found.</span>)}
+                description={(<span>Không tìm thấy dữ liệu.</span>)}
               />
             ) : (
               <div className='table-layout'>
@@ -95,25 +95,25 @@ function RoomsList({ add }) {
                     <thead className='data-table-head'>
                       <tr className='data-table-head-tr'>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Images
+                          Hình ảnh
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Room Name
+                          Tên phòng
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Room Type
+                          Loại phòng
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Room Price
+                          Giá phòng
                         </th>
                         <th className='data-table-head-tr-th' scope='col'>
-                          Room Size
+                          Diện tích
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Room Status
+                          Trạng thái phòng
                         </th>
                         <th className='data-table-head-tr-th text-center' scope='col'>
-                          Room Actions
+                          Thao tác
                         </th>
                       </tr>
                     </thead>
@@ -165,7 +165,7 @@ function RoomsList({ add }) {
                               onClick={() => add(data?.id)}
                               type='link'
                             >
-                              View
+                              Xem
                             </Button>
                             <Button
                               className='inline-flex items-center !px-2'
@@ -174,14 +174,14 @@ function RoomsList({ add }) {
                               )}
                               type='link'
                             >
-                              Edit
+                              Sửa
                             </Button>
                             <Button
                               className='inline-flex items-center !px-2'
                               onClick={() => handleDeleteRoom(data?.id)}
                               type='link'
                             >
-                              Delete
+                              Xóa
                             </Button>
                           </td>
                         </tr>

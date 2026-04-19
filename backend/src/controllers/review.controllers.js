@@ -12,6 +12,31 @@ const Review = require('../models/review.modal');
 const { errorResponse, successResponse } = require('../configs/app.response');
 const MyQueryHelper = require('../configs/api.feature');
 
+const mapReviewResponse = (data) => ({
+  id: data?.id,
+  rating: data?.rating,
+  message: data?.message,
+  room_id: data?.room_id?._id || data?.room_id,
+  room: data?.room_id?._id ? {
+    id: data?.room_id?._id,
+    room_name: data?.room_id?.room_name,
+    room_slug: data?.room_id?.room_slug
+  } : null,
+  booking_id: data?.booking_id?._id || data?.booking_id,
+  reviews_by: {
+    id: data?.user_id?._id,
+    userName: data?.user_id?.userName,
+    fullName: data?.user_id?.fullName,
+    email: data?.user_id?.email,
+    phone: data?.user_id?.phone,
+    avatar: process.env.APP_BASE_URL + data?.user_id?.avatar,
+    role: data?.user_id?.role,
+    status: data?.user_id?.status
+  },
+  created_at: data?.createdAt,
+  updated_at: data?.updatedAt
+});
+
 // TODO: controller for room review add
 exports.roomReviewAdd = async (req, res) => {
   try {
@@ -57,6 +82,15 @@ exports.roomReviewAdd = async (req, res) => {
       ));
     }
 
+    // ensure only the booking owner can review
+    if (myBooking.booking_by.toString() !== req.user.id.toString()) {
+      return res.status(403).json(errorResponse(
+        6,
+        'UNABLE TO ACCESS',
+        'Sorry! You can review only your own booking'
+      ));
+    }
+
     // check booking already add reviews
     if (myBooking.reviews) {
       return res.status(400).json(errorResponse(
@@ -66,12 +100,20 @@ exports.roomReviewAdd = async (req, res) => {
       ));
     }
 
-    // check booking status is `in-reviews`
-    if (myBooking.booking_status !== 'in-reviews') {
+    // check booking is eligible for review only after checkout
+    if (myBooking.booking_status !== 'approved') {
       return res.status(400).json(errorResponse(
         1,
         'FAILED',
         'Invalid booking status for adding a review'
+      ));
+    }
+
+    if (!myBooking?.stay_info?.checked_out_at) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'You can review this booking only after checkout'
       ));
     }
 
@@ -96,7 +138,7 @@ exports.roomReviewAdd = async (req, res) => {
     res.status(201).json(successResponse(
       0,
       'SUCCESS',
-      'Your room booking order placed successful',
+      'Your room review placed successful',
       savedReview
     ));
   } catch (error) {
@@ -141,31 +183,7 @@ exports.getRoomReviewsList = async (req, res) => {
       .paginate();
     const findReviews = await reviewQuery.query;
 
-    const mapperReviews = findReviews?.map((data) => ({
-      id: data?.id,
-      rating: data?.rating,
-      message: data?.message,
-      room_id: data?.room_id,
-      booking_id: data?.booking_id,
-      reviews_by: {
-        id: data?.user_id?._id,
-        userName: data?.user_id?.userName,
-        fullName: data?.user_id?.fullName,
-        email: data?.user_id?.email,
-        phone: data?.user_id?.phone,
-        avatar: process.env.APP_BASE_URL + data?.user_id?.avatar,
-        gender: data?.user_id?.gender,
-        dob: data?.user_id?.dob,
-        address: data?.user_id?.address,
-        role: data?.user_id?.role,
-        verified: data?.user_id?.verified,
-        status: data?.user_id?.status,
-        createdAt: data?.user_id?.createdAt,
-        updatedAt: data?.user_id?.updatedAt
-      },
-      created_at: data?.createdAt,
-      updated_at: data?.updatedAt
-    }));
+    const mapperReviews = findReviews?.map(mapReviewResponse);
 
     // success response with the reviews list
     res.status(200).json(successResponse(
@@ -179,6 +197,100 @@ exports.getRoomReviewsList = async (req, res) => {
         total_page: req?.query?.keyword ? Math.ceil(findReviews.length / req.query.limit) : Math.ceil(myReviews.length / req.query.limit),
         current_page: req?.query?.page ? parseInt(req.query.page, 10) : 1
       }
+    ));
+  } catch (error) {
+    res.status(500).json(errorResponse(
+      2,
+      'SERVER SIDE ERROR',
+      error
+    ));
+  }
+};
+
+// TODO: controller for get all reviews list by admin
+exports.getAllReviewsForAdmin = async (req, res) => {
+  try {
+    const myReviews = await Review.find()
+      .populate('user_id')
+      .populate('room_id')
+      .populate('booking_id');
+
+    if (!myReviews || myReviews.length === 0) {
+      return res.status(404).json(errorResponse(
+        4,
+        'UNKNOWN ACCESS',
+        'No reviews found'
+      ));
+    }
+
+    const reviewQuery = new MyQueryHelper(Review.find()
+      .populate('user_id')
+      .populate('room_id')
+      .populate('booking_id'), req.query)
+      .search('message')
+      .sort()
+      .paginate();
+    const findReviews = await reviewQuery.query;
+
+    const mapperReviews = findReviews?.map(mapReviewResponse);
+
+    res.status(200).json(successResponse(
+      0,
+      'SUCCESS',
+      'Reviews list retrieved successful',
+      {
+        rows: mapperReviews,
+        total_rows: myReviews.length,
+        response_rows: findReviews.length,
+        total_page: req?.query?.keyword ? Math.ceil(findReviews.length / req.query.limit) : Math.ceil(myReviews.length / req.query.limit),
+        current_page: req?.query?.page ? parseInt(req.query.page, 10) : 1
+      }
+    ));
+  } catch (error) {
+    res.status(500).json(errorResponse(
+      2,
+      'SERVER SIDE ERROR',
+      error
+    ));
+  }
+};
+
+// TODO: controller for delete review by admin
+exports.deleteReviewByAdmin = async (req, res) => {
+  try {
+    let myReview = null;
+
+    if (/^[0-9a-fA-F]{24}$/.test(req.params.review_id)) {
+      myReview = await Review.findById(req.params.review_id);
+    } else {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Something went wrong. Probably review id missing/incorrect'
+      ));
+    }
+
+    if (!myReview) {
+      return res.status(404).json(errorResponse(
+        4,
+        'UNKNOWN ACCESS',
+        'Review does not exist'
+      ));
+    }
+
+    await Booking.findByIdAndUpdate(
+      myReview.booking_id,
+      { $unset: { reviews: 1 } },
+      { new: true }
+    );
+
+    await Review.findByIdAndDelete(req.params.review_id);
+
+    res.status(200).json(successResponse(
+      0,
+      'SUCCESS',
+      'Review deleted successful',
+      null
     ));
   } catch (error) {
     res.status(500).json(errorResponse(

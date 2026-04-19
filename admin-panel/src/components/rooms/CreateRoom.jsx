@@ -59,16 +59,16 @@ function CreateRoom() {
       .then((response) => {
         setLoading(false);
         if (response?.result_code === 0) {
-          notificationWithIcon('success', 'SUCCESS', response?.result?.message || 'New room create successful');
+          notificationWithIcon('success', 'THÀNH CÔNG', response?.result?.message || 'Tạo phòng mới thành công.');
           form.resetFields();
           dispatch(reFetchData());
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       })
       .catch((err) => {
         setLoading(false);
-        notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       });
   };
 
@@ -83,15 +83,15 @@ function CreateRoom() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Name'
+          label='Tên phòng'
           name='room_name'
           rules={[{
             required: true,
-            message: 'Please input your Room Name!'
+            message: 'Vui lòng nhập tên phòng.'
           }]}
         >
           <Input
-            placeholder='Room Name'
+            placeholder='Nhập tên phòng'
             size='large'
             type='text'
             allowClear
@@ -100,15 +100,15 @@ function CreateRoom() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Slug'
+          label='Slug phòng'
           name='room_slug'
           rules={[{
             required: true,
-            message: 'Please input your Room Slug!'
+            message: 'Vui lòng nhập slug phòng.'
           }]}
         >
           <Input
-            placeholder='Room Slug'
+            placeholder='Nhập slug phòng'
             size='large'
             type='text'
             allowClear
@@ -119,21 +119,21 @@ function CreateRoom() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Type'
+          label='Loại phòng'
           name='room_type'
           rules={[{
             required: true,
-            message: 'Please input your Room Type!'
+            message: 'Vui lòng chọn loại phòng.'
           }]}
         >
           <Select
-            placeholder='-- select room type --'
+            placeholder='-- chọn loại phòng --'
             optionFilterProp='children'
             options={[
-              { value: 'single', label: 'Single' },
-              { value: 'couple', label: 'Couple' },
-              { value: 'family', label: 'Family' },
-              { value: 'presidential', label: 'Presidential' }
+              { value: 'single', label: 'Đơn' },
+              { value: 'couple', label: 'Đôi' },
+              { value: 'family', label: 'Gia đình' },
+              { value: 'presidential', label: 'Tổng thống' }
             ]}
             size='large'
             allowClear
@@ -142,16 +142,16 @@ function CreateRoom() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Price'
+          label='Giá phòng'
           name='room_price'
           rules={[{
             required: true,
-            message: 'Please input your Room Price!'
+            message: 'Vui lòng nhập giá phòng.'
           }]}
         >
           <InputNumber
             className='w-full'
-            placeholder='Room Price'
+            placeholder='Nhập giá phòng'
             type='number'
             size='large'
             min={1}
@@ -163,16 +163,16 @@ function CreateRoom() {
       <div className='two-grid-column'>
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Size'
+          label='Diện tích'
           name='room_size'
           rules={[{
             required: true,
-            message: 'Please input your Room Size!'
+            message: 'Vui lòng nhập diện tích.'
           }]}
         >
           <InputNumber
             className='w-full'
-            placeholder='Room Size'
+            placeholder='Nhập diện tích'
             type='number'
             size='large'
             min={1}
@@ -182,16 +182,16 @@ function CreateRoom() {
 
         <Form.Item
           className='w-full md:w-1/2'
-          label='Room Capacity'
+          label='Sức chứa'
           name='room_capacity'
           rules={[{
             required: true,
-            message: 'Please input your Room Capacity!'
+            message: 'Vui lòng nhập sức chứa.'
           }]}
         >
           <InputNumber
             className='w-full'
-            placeholder='Room Capacity'
+            placeholder='Nhập sức chứa'
             type='number'
             size='large'
             min={1}
@@ -201,29 +201,29 @@ function CreateRoom() {
       </div>
 
       <Form.Item
-        label='Room Description'
+        label='Mô tả phòng'
         name='room_description'
         rules={[{
           required: true,
-          message: 'Please input your Room Description!'
+          message: 'Vui lòng nhập mô tả phòng.'
         }]}
       >
         <Input.TextArea
-          placeholder='Type here Room Description'
+          placeholder='Nhập mô tả phòng'
           rows={4}
         />
       </Form.Item>
 
       <Form.Item
-        label='Extra Facilities'
+        label='Tiện ích bổ sung'
         name='extra_facilities'
         rules={[{
           required: true,
-          message: 'Please input your Extra Facilities!'
+          message: 'Vui lòng chọn tiện ích bổ sung.'
         }]}
       >
         <Select
-          placeholder='-- select room extra facilities --'
+          placeholder='-- chọn tiện ích bổ sung --'
           optionFilterProp='children'
           options={EF}
           mode='multiple'
@@ -234,12 +234,12 @@ function CreateRoom() {
 
       <Form.Item
         name='room_images'
-        label='Room Images'
+        label='Hình ảnh phòng'
         valuePropName='fileList'
         getValueFromEvent={normFile}
         rules={[{
           required: true,
-          message: 'Please input your Room Images!'
+          message: 'Vui lòng tải lên hình ảnh phòng.'
         }]}
       >
         <Upload
@@ -255,7 +255,7 @@ function CreateRoom() {
             <div>
               <PlusOutlined />
               <div style={{ marginTop: 8 }}>
-                Upload
+                Tải lên
               </div>
             </div>
           )}
@@ -264,13 +264,13 @@ function CreateRoom() {
 
       <div className='flex flex-col items-start justify-start gap-y-2'>
         <Form.Item name='allow_pets' valuePropName='checked' noStyle>
-          <Checkbox className='ml-2.5'>Allow pets?</Checkbox>
+          <Checkbox className='ml-2.5'>Cho phép thú cưng?</Checkbox>
         </Form.Item>
         <Form.Item name='provide_breakfast' valuePropName='checked' noStyle>
-          <Checkbox>Provide Breakfast?</Checkbox>
+          <Checkbox>Bao gồm bữa sáng?</Checkbox>
         </Form.Item>
         <Form.Item name='featured_room' valuePropName='checked' noStyle>
-          <Checkbox>Featured Room?</Checkbox>
+          <Checkbox>Phòng nổi bật?</Checkbox>
         </Form.Item>
       </div>
 
@@ -283,7 +283,7 @@ function CreateRoom() {
           loading={loading}
           disabled={loading}
         >
-          Create New Room
+          Tạo phòng mới
         </Button>
       </Form.Item>
     </Form>

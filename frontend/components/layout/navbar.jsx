@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright (c)2023 - Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -25,12 +25,10 @@ function Navbar() {
     <nav className='navbar'>
       <div className='nav-center'>
         <div className='nav-header'>
-          {/* app logo */}
           <Link href='/'>
-            <img src='/images//svg/logo.svg' alt='Reach Resort' />
+            <img src='/images//svg/logo.svg' alt='Beach Resort' />
           </Link>
 
-          {/* navbar toggle button */}
           <button
             className='nav-btn'
             onClick={() => setIsOpen(!isOpen)}
@@ -38,28 +36,27 @@ function Navbar() {
           >
             <FaAlignRight className='nav-icon' />
           </button>
-
         </div>
 
-        {/* navbar login button */}
-        {user?.id && token ? (<UserPopover />) : (
+        {user?.id && token ? (
+          <UserPopover />
+        ) : (
           <Button
             style={{ position: 'absolute', right: '100px', top: '20px' }}
             onClick={() => router.push('/auth/login')}
             type='primary'
             size='large'
           >
-            Log In
+            Đăng nhập
           </Button>
         )}
 
-        {/* navbar link */}
         <ul className={isOpen ? 'nav-links show-nav' : 'nav-links'}>
           <li>
-            <Link href='/'>Home</Link>
+            <Link href='/'>Trang chủ</Link>
           </li>
           <li>
-            <Link href='/rooms'>Rooms</Link>
+            <Link href='/rooms'>Phòng</Link>
           </li>
         </ul>
       </div>

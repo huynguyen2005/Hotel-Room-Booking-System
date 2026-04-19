@@ -2,7 +2,7 @@
  * @name Hotel Room Booking System
  * @author Md. Samiur Rahman (Mukul)
  * @description Hotel Room Booking and Management System Software ~ Developed By Md. Samiur Rahman (Mukul)
- * @copyright ©2023 ― Md. Samiur Rahman (Mukul). All rights reserved.
+ * @copyright ©2023 • Md. Samiur Rahman (Mukul). All rights reserved.
  * @version v0.0.1
  *
  */
@@ -25,16 +25,24 @@ import ProfileEditModal from './ProfileEditModal';
 const { publicRuntimeConfig } = getConfig();
 const { confirm } = Modal;
 
+const tagStyle = {
+  minWidth: '86px',
+  textAlign: 'center',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+};
+
+const nowrapLabel = (text) => <span style={{ whiteSpace: 'nowrap' }}>{text}</span>;
+
 function MyProfile() {
   const [editProfileModal, setEditProfileModal] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const token = getSessionToken();
   const user = getSessionUser();
 
-  // fetch user profile API data
   const [loading, error, response] = useFetchData('/api/v1/get-user');
 
-  // handle to change user avatar upload
   const props = {
     accept: 'image/*',
     name: 'avatar',
@@ -43,41 +51,40 @@ function MyProfile() {
     headers: { authorization: `Bearer ${token}` },
     onChange(info) {
       if (info.file.status === 'done') {
-        // Handle response from API
         if (info?.file?.response?.result_code === 0) {
-          notificationWithIcon('success', 'SUCCESS', info?.file?.response?.result?.message || 'Your avatar change successful');
-          // update local storage session user data
+          notificationWithIcon('success', 'THÀNH CÔNG', info?.file?.response?.result?.message || 'Đổi ảnh đại diện thành công.');
           setSessionUserKeyAgainstValue('avatar', info?.file?.response?.result?.data?.avatar);
           window.location.reload();
         } else {
-          notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+          notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
         }
       } else {
-        notificationWithIcon('error', 'ERROR', info?.file?.response?.result?.error || 'Sorry! Something went wrong. App server error');
+        notificationWithIcon('error', 'LỖI', info?.file?.response?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
       }
     }
   };
 
-  // function handle verify user email mail send
   const handleVerifyEmail = () => {
     confirm({
-      title: 'SEND EMAIL VERIFICATION LINK',
+      title: 'GỬI LIÊN KẾT XÁC MINH EMAIL',
       icon: <ExclamationCircleFilled />,
-      content: 'Are you sure send your email verification link?',
+      content: 'Bạn có chắc muốn gửi liên kết xác minh email không?',
+      okText: 'Gửi',
+      cancelText: 'Hủy',
       onOk() {
         return new Promise((resolve, reject) => {
           ApiService.post('/api/v1/auth/send-email-verification-link')
             .then((res) => {
               if (res?.result_code === 0) {
-                notificationWithIcon('success', 'SUCCESS', res?.result?.message || 'Verification link send successful');
+                notificationWithIcon('success', 'THÀNH CÔNG', res?.result?.message || 'Đã gửi liên kết xác minh email thành công.');
                 resolve();
               } else {
-                notificationWithIcon('error', 'ERROR', 'Sorry! Something went wrong. App server error');
+                notificationWithIcon('error', 'LỖI', 'Đã có lỗi xảy ra từ máy chủ.');
                 reject();
               }
             })
             .catch((err) => {
-              notificationWithIcon('error', 'ERROR', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Sorry! Something went wrong. App server error');
+              notificationWithIcon('error', 'LỖI', err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.');
               reject();
             });
         });
@@ -90,14 +97,15 @@ function MyProfile() {
       <Skeleton loading={loading} paragraph={{ rows: 10 }} active avatar>
         {error ? (
           <Result
-            title='Failed to fetch'
+            title='Không thể tải dữ liệu'
             subTitle={error}
             status='error'
           />
         ) : (
           <Descriptions
-            title='Profile Information'
+            title='Thông tin hồ sơ'
             bordered
+            column={3}
             extra={(
               <>
                 {!user?.verified && (
@@ -108,7 +116,7 @@ function MyProfile() {
                     type='primary'
                     size='large'
                   >
-                    Verify Email
+                    Xác minh email
                   </Button>
                 )}
 
@@ -119,7 +127,7 @@ function MyProfile() {
                   type='default'
                   size='large'
                 >
-                  Change Password
+                  Đổi mật khẩu
                 </Button>
 
                 <Button
@@ -129,12 +137,12 @@ function MyProfile() {
                   type='primary'
                   size='large'
                 >
-                  Edit Profile
+                  Chỉnh sửa hồ sơ
                 </Button>
               </>
             )}
           >
-            <Descriptions.Item label='Avatar' span={3}>
+            <Descriptions.Item label={nowrapLabel('Ảnh đại diện')} span={3}>
               {response?.data?.avatar ? (
                 <Image
                   style={{ width: '100px', height: '100px' }}
@@ -142,13 +150,12 @@ function MyProfile() {
                   crossOrigin='anonymous'
                   alt='user-image'
                 />
-              ) : 'N/A'}
+              ) : 'Không có'}
 
-              {/* user avatar change */}
               <div style={{ position: 'absolute', marginTop: '-7rem', marginLeft: '5.5rem' }}>
                 <ImgCrop showGrid rotationSlider>
                   <Upload {...props}>
-                    <Tooltip title='Click to change Avatar'>
+                    <Tooltip title='Nhấn để đổi ảnh đại diện'>
                       <Button
                         icon={<EditOutlined />}
                         type='default'
@@ -160,62 +167,61 @@ function MyProfile() {
               </div>
             </Descriptions.Item>
 
-            <Descriptions.Item label='Full Name'>
+            <Descriptions.Item label={nowrapLabel('Họ và tên')}>
               {response?.data?.fullName}
             </Descriptions.Item>
-            <Descriptions.Item label='User Name' span={2}>
+            <Descriptions.Item label={nowrapLabel('Tên đăng nhập')} span={2}>
               {response?.data?.userName}
             </Descriptions.Item>
-            <Descriptions.Item label='Email'>
+            <Descriptions.Item label={nowrapLabel('Email')}>
               {response?.data?.email}
             </Descriptions.Item>
-            <Descriptions.Item label='Phone' span={2}>
+            <Descriptions.Item label={nowrapLabel('Số điện thoại')} span={2}>
               {response?.data?.phone}
             </Descriptions.Item>
 
-            <Descriptions.Item label='Role'>
+            <Descriptions.Item label={nowrapLabel('Vai trò')}>
               <Tag
-                style={{ width: '60px', textAlign: 'center', textTransform: 'capitalize' }}
+                style={tagStyle}
                 color={response?.data?.role === 'admin' ? 'magenta' : 'purple'}
               >
-                {response?.data?.role}
+                {response?.data?.role === 'admin' ? 'Admin' : 'Người dùng'}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label='Status' span={2}>
+            <Descriptions.Item label={nowrapLabel('Trạng thái')} span={2}>
               <Tag
-                style={{ width: '70px', textAlign: 'center', textTransform: 'capitalize' }}
+                style={tagStyle}
                 color={userStatusAsResponse(response?.data?.status).color}
               >
                 {userStatusAsResponse(response?.data?.status).level}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label='Verified'>
+            <Descriptions.Item label={nowrapLabel('Đã xác minh')}>
               <Tag
-                style={{ width: '50px', textAlign: 'center', textTransform: 'capitalize' }}
+                style={tagStyle}
                 color={response?.data?.verified ? 'success' : 'error'}
               >
-                {response?.data?.verified ? 'Yes' : 'No'}
+                {response?.data?.verified ? 'Có' : 'Không'}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label='Date Of Birth' span={2}>
-              {response?.data?.dob?.split('T')[0] || 'N/A'}
+            <Descriptions.Item label={nowrapLabel('Ngày sinh')} span={2}>
+              {response?.data?.dob?.split('T')[0] || 'Không có'}
             </Descriptions.Item>
 
-            <Descriptions.Item label='User Last Update Date'>
+            <Descriptions.Item label={nowrapLabel('Ngày cập nhật gần nhất')}>
               {response?.data?.updatedAt?.split('T')[0]}
             </Descriptions.Item>
-            <Descriptions.Item label='User Registration Date' span={2}>
+            <Descriptions.Item label={nowrapLabel('Ngày đăng ký tài khoản')} span={2}>
               {response?.data?.createdAt?.split('T')[0]}
             </Descriptions.Item>
 
-            <Descriptions.Item label='Address' span={3}>
+            <Descriptions.Item label={nowrapLabel('Địa chỉ')} span={3}>
               {response?.data?.address}
             </Descriptions.Item>
           </Descriptions>
         )}
       </Skeleton>
 
-      {/* profile edit modal component */}
       {editProfileModal && (
         <ProfileEditModal
           editProfileModal={editProfileModal}
