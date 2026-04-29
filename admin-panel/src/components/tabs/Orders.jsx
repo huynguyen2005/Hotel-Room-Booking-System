@@ -31,7 +31,10 @@ function Orders() {
   );
   const [actionLoading, setActionLoading] = useState(null);
 
-  const [loading, error, response] = useFetchData(`/api/v1/get-all-booking-orders?keyword=${query.search}&limit=${query.rows}&page=${query.page}&sort=${query.sort}`, fetchAgain);
+  const [loading, error, response] = useFetchData(
+    `/api/v1/get-all-booking-orders?keyword=${query.search}&limit=${query.rows}&page=${query.page}&sort=${query.sort}`,
+    fetchAgain
+  );
 
   useEffect(() => {
     setQuery((prevState) => ({ ...prevState, page: '1' }));
@@ -66,9 +69,7 @@ function Orders() {
       notificationWithIcon(
         'error',
         'LỖI',
-        err?.response?.data?.result?.error?.message ||
-          err?.response?.data?.result?.error ||
-          'Đã có lỗi xảy ra từ máy chủ.'
+        err?.response?.data?.result?.error?.message || err?.response?.data?.result?.error || 'Đã có lỗi xảy ra từ máy chủ.'
       );
     } finally {
       setActionLoading(null);
@@ -147,19 +148,13 @@ function Orders() {
                         const isApproved = data?.booking_status === 'approved';
                         const canCheckIn = isApproved && !data?.stay_info?.checked_in_at;
                         const canMarkNoShow = isApproved && !data?.stay_info?.checked_in_at;
-                        const canCheckOut = isApproved &&
-                          data?.stay_info?.checked_in_at &&
-                          !data?.stay_info?.checked_out_at;
-                        const currentActionKey = actionLoading && actionLoading.endsWith(data?.id)
-                          ? actionLoading
-                          : null;
+                        const canCheckOut = isApproved && data?.stay_info?.checked_in_at && !data?.stay_info?.checked_out_at;
+                        const currentActionKey = actionLoading && actionLoading.endsWith(data?.id) ? actionLoading : null;
 
                         return (
                           <tr className='data-table-body-tr' key={uniqueId()}>
                             <td className='data-table-body-tr-td'>
-                              {arrayToCommaSeparatedText(data?.booking_dates?.map(
-                                (date) => (date.split('T')[0])
-                              ))}
+                              {arrayToCommaSeparatedText(data?.booking_dates?.map((date) => date.split('T')[0]))}
                             </td>
                             <td className='data-table-body-tr-td text-center'>
                               <Tag
@@ -183,11 +178,7 @@ function Orders() {
                             </td>
                             <td className='data-table-body-tr-td text-center'>
                               <div className='flex flex-col'>
-                                <span>
-                                  {data?.payment_info?.payment_method === 'counter'
-                                    ? 'Tại quầy'
-                                    : (data?.payment_info?.payment_method || 'Không có')}
-                                </span>
+                                <span>{data?.payment_info?.payment_method === 'counter' ? 'Tại quầy' : (data?.payment_info?.payment_method || 'Không có')}</span>
                                 <small>{data?.payment_info?.payment_status || 'Không có'}</small>
                               </div>
                             </td>
