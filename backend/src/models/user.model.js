@@ -19,27 +19,49 @@ const usersSchema = new mongoose.Schema({
     trim: true,
     unique: true,
     lowercase: true,
-    required: [true, 'User name filed is required']
+    required: [true, 'User name filed is required'],
+    minlength: [3, 'Username must be between 3 and 20 characters'],
+    maxlength: [20, 'Username must be between 3 and 20 characters'],
+    match: [/^[a-zA-Z0-9]+$/, 'Username can only contain letters and numbers']
   },
   fullName: {
     type: String,
-    required: [true, 'Full name filed is required']
+    trim: true,
+    required: [true, 'Full name filed is required'],
+    minlength: [8, 'Full name must be between 8 and 30 characters'],
+    maxlength: [30, 'Full name must be between 8 and 30 characters'],
+    validate: {
+      validator(value) {
+        return /^[\p{L}\s]+$/u.test(value);
+      },
+      message: 'Full name can only contain letters and spaces'
+    }
   },
   email: {
     type: String,
+    trim: true,
+    lowercase: true,
     unique: true,
     required: [true, 'Email filed is required'],
     validate: [validator.isEmail, 'Please enter a valid email address']
   },
   phone: {
     type: String,
-    unique: true,
-    validate: [validator.isMobilePhone, 'Please enter a valid phone number']
+    required: [true, 'Phone filed is required'],
+    match: [/^0\d{9}$/, 'Phone number must start with 0 and have exactly 10 digits']
   },
   password: {
     type: String,
     required: [true, 'Password filed is required'],
-    minlength: [6, 'Password must be at least 6 characters'],
+    minlength: [6, 'Password must be between 6 and 16 characters'],
+    maxlength: [16, 'Password must be between 6 and 16 characters'],
+    validate: {
+      validator(value) {
+        // At least one uppercase letter, one special character and no whitespace.
+        return /^(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=\S+$).{6,16}$/.test(value);
+      },
+      message: 'Password must include 1 uppercase letter, 1 special character, and no spaces'
+    },
     select: false
   },
   avatar: {
@@ -47,15 +69,28 @@ const usersSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: ['male', 'female']
+    required: [true, 'Gender field is required'],
+    enum: {
+      values: ['male', 'female'],
+      message: 'Gender must be male or female'
+    }
   },
   dob: {
     type: Date,
-    required: [validator.isDate, 'Date of birth filed is required']
+    required: [true, 'Date of birth filed is required'],
+    validate: {
+      validator(value) {
+        return value && new Date(value) <= new Date();
+      },
+      message: 'Date of birth cannot be in the future'
+    }
   },
   address: {
     type: String,
-    required: [true, 'Address field is required']
+    trim: true,
+    required: [true, 'Address field is required'],
+    minlength: [5, 'Address must be between 5 and 255 characters'],
+    maxlength: [255, 'Address must be between 5 and 255 characters']
   },
   role: {
     type: String,
@@ -83,14 +118,6 @@ const usersSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
-
-// Replace spaces with dashes in userName before saving
-usersSchema.pre('save', function (next) {
-  if (this.userName) {
-    this.userName = this.userName.replace(/\s/g, '-');
-  }
-  next();
 });
 
 // after save, hash password

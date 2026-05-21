@@ -20,96 +20,22 @@ const { sendEmail } = require('../configs/send.mail');
 exports.register = async (req, res) => {
   try {
     const {
-      userName, fullName, email, phone, password, dob, address, gender, role
+      userName, fullName, email, phone, password, dob, address, gender
     } = req.body;
+    const normalizedUserName = (userName || '').trim().toLowerCase();
+    const normalizedFullName = (fullName || '').trim();
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const normalizedPhone = (phone || '').trim();
+    const normalizedPassword = (password || '').toString();
+    const normalizedAddress = (address || '').trim();
+    const normalizedGender = (gender || '').trim().toLowerCase();
+    const normalizedDob = (dob || '').toString().trim();
 
-    if (userName && fullName && email && password && dob && address) {
-      // check if userName, email or phone already exists
-      const findUserName = await User.findOne({ userName });
-      const findEmail = await User.findOne({ email });
-      const findPhone = await User.findOne({ phone });
-
-      if (findUserName) {
-        // delete uploaded avatar image
-        if (req?.file?.filename) {
-          fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
-            if (err) { logger.error(err); }
-          });
-        }
-
-        return res.status(409).json(errorResponse(
-          9,
-          'ALREADY EXIST',
-          'Sorry, Username already exists'
-        ));
-      }
-
-      if (findEmail) {
-        // delete uploaded avatar image
-        if (req?.file?.filename) {
-          fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
-            if (err) { logger.error(err); }
-          });
-        }
-
-        return res.status(409).json(errorResponse(
-          9,
-          'ALREADY EXIST',
-          'Sorry, Email already exists'
-        ));
-      }
-
-      if (findPhone) {
-        // delete uploaded avatar image
-        if (req?.file?.filename) {
-          fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
-            if (err) { logger.error(err); }
-          });
-        }
-
-        return res.status(409).json(errorResponse(
-          9,
-          'ALREADY EXIST',
-          'Sorry, Phone number already exists'
-        ));
-      }
-
-      // create new user and store in database
-      const user = await User.create({
-        userName,
-        fullName,
-        email,
-        phone,
-        password,
-        avatar: req.file ? `/uploads/users/${req.file.filename}` : '/avatar.png',
-        gender,
-        dob,
-        address,
-        role
-      });
-
-      // success response with register new user
-      res.status(201).json(successResponse(
-        0,
-        'SUCCESS',
-        'User registered successful',
-        {
-          userName: user.userName,
-          fullName: user.fullName,
-          email: user.email,
-          phone: user.phone,
-          avatar: process.env.APP_BASE_URL + user.avatar,
-          gender: user.gender,
-          dob: user.dob,
-          address: user.address,
-          role: user.role,
-          verified: user.verified,
-          status: user.status,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
-        }
-      ));
-    } else {
+    if (
+      !normalizedUserName || !normalizedFullName || !normalizedEmail
+      || !normalizedPhone || !normalizedPassword || !normalizedDob
+      || !normalizedGender || !normalizedAddress
+    ) {
       // delete uploaded avatar image
       if (req?.file?.filename) {
         fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
@@ -123,6 +49,140 @@ exports.register = async (req, res) => {
         'Please enter all required fields'
       ));
     }
+
+    if (!/^[a-zA-Z0-9]{3,20}$/.test(normalizedUserName)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Username must be 3-20 characters and only letters/numbers'
+      ));
+    }
+
+    if (!/^[\p{L}\s]{8,30}$/u.test(normalizedFullName)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Full name must be 8-30 characters, letters and spaces only'
+      ));
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Please enter a valid email address'
+      ));
+    }
+
+    if (!/^0\d{9}$/.test(normalizedPhone)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Phone number must start with 0 and contain exactly 10 digits'
+      ));
+    }
+
+    if (!/^(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=\S+$).{6,16}$/.test(normalizedPassword)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Password must be 6-16 characters, include 1 uppercase, 1 special character, and no spaces'
+      ));
+    }
+
+    if (!['male', 'female'].includes(normalizedGender)) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Gender must be male or female'
+      ));
+    }
+
+    if (normalizedAddress.length < 5 || normalizedAddress.length > 255) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Address must be between 5 and 255 characters'
+      ));
+    }
+
+    const dobDate = new Date(normalizedDob);
+    if (Number.isNaN(dobDate.getTime()) || dobDate > new Date()) {
+      return res.status(400).json(errorResponse(
+        1,
+        'FAILED',
+        'Date of birth cannot be in the future'
+      ));
+    }
+
+    // check if userName or email already exists
+    const findUserName = await User.findOne({ userName: normalizedUserName });
+    const findEmail = await User.findOne({ email: normalizedEmail });
+
+    if (findUserName) {
+      // delete uploaded avatar image
+      if (req?.file?.filename) {
+        fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
+          if (err) { logger.error(err); }
+        });
+      }
+
+      return res.status(409).json(errorResponse(
+        9,
+        'ALREADY EXIST',
+        'Sorry, Username already exists'
+      ));
+    }
+
+    if (findEmail) {
+      // delete uploaded avatar image
+      if (req?.file?.filename) {
+        fs.unlink(`${appRoot}/public/uploads/users/${req.file.filename}`, (err) => {
+          if (err) { logger.error(err); }
+        });
+      }
+
+      return res.status(409).json(errorResponse(
+        9,
+        'ALREADY EXIST',
+        'Sorry, Email already exists'
+      ));
+    }
+
+    // create new user and store in database
+    const user = await User.create({
+      userName: normalizedUserName,
+      fullName: normalizedFullName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      password: normalizedPassword,
+      avatar: req.file ? `/uploads/users/${req.file.filename}` : '/avatar.png',
+      gender: normalizedGender,
+      dob: dobDate,
+      address: normalizedAddress
+    });
+
+    // success response with register new user
+    res.status(201).json(successResponse(
+      0,
+      'SUCCESS',
+      'User registered successful',
+      {
+        userName: user.userName,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        avatar: process.env.APP_BASE_URL + user.avatar,
+        gender: user.gender,
+        dob: user.dob,
+        address: user.address,
+        role: user.role,
+        verified: user.verified,
+        status: user.status,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    ));
   } catch (error) {
     // delete uploaded avatar image
     if (req?.file?.filename) {
